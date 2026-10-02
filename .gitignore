@@ -1,0 +1,13 @@
+# Secrets — never commit
+backend/config/local.php
+.env
+.env.*
+
+# Local / test artifacts
+database/*_results.json
+database/_session_boot*.php
+*.log
+
+# Frontend dependencies; keep assets/build for PHP-only Hostforge uploads.
+node_modules/
+*.tsbuildinfo

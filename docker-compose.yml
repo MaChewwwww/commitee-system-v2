@@ -1,0 +1,44 @@
+services:
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: committee_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${COMMITTEE_DB_PASSWORD:-root}
+      MYSQL_DATABASE: ${COMMITTEE_DB_NAME:-committee_management}
+    ports:
+      - "${COMMITTEE_DB_PORT:-3306}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/production_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./database/seed_all.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+  
+  # PHP Web Service (Optional containerized web server)
+  web:
+    build: .
+    container_name: committee_web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - COMMITTEE_DB_HOST=db
+      - COMMITTEE_DB_PORT=3306
+      - COMMITTEE_DB_NAME=${COMMITTEE_DB_NAME:-committee_management}
+      - COMMITTEE_DB_USER=${COMMITTEE_DB_USER:-root}
+      - COMMITTEE_DB_PASSWORD=${COMMITTEE_DB_PASSWORD:-root}
+      - COMMITTEE_SMTP_HOST=${COMMITTEE_SMTP_HOST:-smtp.gmail.com}
+      - COMMITTEE_SMTP_PORT=${COMMITTEE_SMTP_PORT:-587}
+      - COMMITTEE_SMTP_USER=${COMMITTEE_SMTP_USER}
+      - COMMITTEE_SMTP_PASSWORD=${COMMITTEE_SMTP_PASSWORD}
+      - COMMITTEE_SMTP_FROM=${COMMITTEE_SMTP_FROM}
+      - COMMITTEE_SMTP_FROM_NAME=${COMMITTEE_SMTP_FROM_NAME}
+      - COMMITTEE_SMTP_SECURE=${COMMITTEE_SMTP_SECURE:-tls}
+      - COMMITTEE_GEMINI_API_KEY=${COMMITTEE_GEMINI_API_KEY}
+    depends_on:
+      - db
+
+volumes:
+  db_data:

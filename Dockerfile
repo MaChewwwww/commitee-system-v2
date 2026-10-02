@@ -10,11 +10,11 @@ RUN npm run build
 
 FROM php:8.2-apache
 
-# Copy all files
+# Copy application source
 COPY . /var/www/html/
 COPY --from=ui-build /app/assets/build/ /var/www/html/assets/build/
 
-# Set the frontend/pages as accessible
+# Apache VirtualHost configuration
 RUN echo '<VirtualHost *:80>\n\
     DocumentRoot /var/www/html\n\
     <Directory /var/www/html>\n\
@@ -23,7 +23,10 @@ RUN echo '<VirtualHost *:80>\n\
     </Directory>\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
-RUN docker-php-ext-install pdo pdo_mysql
-RUN a2enmod rewrite
+# Apache server name & rewrite module
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf \
+    && a2enmod rewrite \
+    && docker-php-ext-install pdo pdo_mysql \
+    && chown -R www-data:www-data /var/www/html
 
 EXPOSE 80

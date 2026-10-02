@@ -44,22 +44,24 @@ function localPdo(): PDO {
         return $pdo;
     }
 
-    $host = committeeEnv('COMMITTEE_DB_HOST', 'sql312.infinityfree.com');
-    $port = committeeEnv('COMMITTEE_DB_PORT', '3306');
-    $name = committeeEnv('COMMITTEE_DB_NAME', 'if0_43029446_committee_management');
-    $user = committeeEnv('COMMITTEE_DB_USER', 'if0_43029446');
-    $password = committeeEnv('COMMITTEE_DB_PASSWORD', 'ClEtJTtYinYqm');
+    $dbUrl = committeeEnv('DATABASE_URL', '');
+    if ($dbUrl !== '') {
+        $parsed = parse_url($dbUrl);
+        if (is_array($parsed)) {
+            $host = $parsed['host'] ?? '127.0.0.1';
+            $port = (string) ($parsed['port'] ?? '3306');
+            $user = isset($parsed['user']) ? urldecode($parsed['user']) : 'root';
+            $password = isset($parsed['pass']) ? urldecode($parsed['pass']) : '';
+            $name = ltrim($parsed['path'] ?? 'committee_management', '/');
+        }
+    }
 
-    // Warn when a public host is using XAMPP localhost defaults (common InfinityFree misconfig).
-    $httpHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
-    if ($httpHost !== ''
-        && !preg_match('/^(localhost|127\.0\.0\.1)(:\d+)?$/i', $httpHost)
-        && in_array($host, ['127.0.0.1', 'localhost'], true)
-    ) {
-        error_log(
-            'DB misconfiguration: HTTP host is remote but COMMITTEE_DB_HOST is localhost. '
-            . 'Create backend/config/local.php with the InfinityFree MySQL hostname from the control panel.'
-        );
+    if (!isset($host)) {
+        $host = committeeEnv('COMMITTEE_DB_HOST', committeeEnv('DB_HOST', '127.0.0.1'));
+        $port = committeeEnv('COMMITTEE_DB_PORT', committeeEnv('DB_PORT', '3306'));
+        $name = committeeEnv('COMMITTEE_DB_NAME', committeeEnv('DB_DATABASE', 'committee_management'));
+        $user = committeeEnv('COMMITTEE_DB_USER', committeeEnv('DB_USERNAME', 'root'));
+        $password = committeeEnv('COMMITTEE_DB_PASSWORD', committeeEnv('DB_PASSWORD', 'root'));
     }
 
     try {

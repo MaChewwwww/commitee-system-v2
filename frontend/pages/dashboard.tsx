@@ -124,9 +124,8 @@ export default function Dashboard() {
                 <div className="ui-list-row" key={committee.id}>
                   <div>
                     <strong>{committee.name}</strong>
-                    <small>{committee.type || "General committee"}</small>
                   </div>
-                  <StatusBadge value={committee.status} />
+                  <StatusBadge value={committee.type} />
                 </div>
               ))
             ) : (

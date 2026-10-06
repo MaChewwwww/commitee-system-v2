@@ -79,6 +79,44 @@ describe("all redesigned screens", () => {
   })
 })
 describe("forms and authorization", () => {
+  it("replaces committee status with the three committee types and saves the selected type", async () => {
+    const fetcher = mockApi()
+    mount(Committees, "committees")
+    await userEvent.click(await screen.findByRole("button", { name: "Edit Committee" }))
+    const dialog = screen.getByRole("dialog")
+    expect(within(dialog).queryByRole("combobox", { name: /Status/ })).not.toBeInTheDocument()
+    const type = within(dialog).getByRole("combobox", { name: /Committee Type/ })
+    expect(type).toHaveTextContent("Standing")
+    await userEvent.click(type)
+    expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
+      "Choose an option",
+      "Standing",
+      "Ad Hoc",
+      "Advisory",
+    ])
+    await userEvent.click(screen.getByRole("option", { name: "Ad Hoc" }))
+    await userEvent.click(within(dialog).getByRole("button", { name: "Save changes" }))
+    await waitFor(() => {
+      const request = fetcher.mock.calls.find(
+        ([url, init]) => String(url).includes("committees/index.php") && init?.method === "PUT",
+      )
+      expect(request).toBeDefined()
+      const body = JSON.parse(String(request?.[1]?.body))
+      expect(body.type).toBe("Ad Hoc")
+      expect(body).not.toHaveProperty("status")
+    })
+  })
+
+  it("filters the committee directory by type", async () => {
+    mockApi()
+    mount(Committees, "committees")
+    await screen.findByRole("button", { name: "View Committee" })
+    await choose("Filter committee type", "Advisory")
+    expect(screen.queryByRole("button", { name: "View Committee" })).not.toBeInTheDocument()
+    await choose("Filter committee type", "Standing")
+    expect(screen.getByRole("button", { name: "View Committee" })).toBeInTheDocument()
+  })
+
   it("shows committee membership counts and a read-only detail view with icon actions", async () => {
     const fetcher = mockApi()
     mount(Committees, "committees")

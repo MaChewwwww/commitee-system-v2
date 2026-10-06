@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Building2, CircleCheck, Pause, Archive } from "lucide-react"
+import { Building2, CircleCheck, Timer, Lightbulb } from "lucide-react"
 import { ManagementPage } from "@/components/management"
 import { CommitteeMembers } from "@/components/committee-members"
 import { StatusBadge, StatGrid, StatCard, SelectBox, options } from "@/components/shared"
@@ -14,6 +14,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+const committeeTypes = options(["Standing", "Ad Hoc", "Advisory"])
+
 export default function Committees() {
   const committees = useResource("committees")
   const jurisdictions = useResource("jurisdictions")
@@ -22,7 +24,7 @@ export default function Committees() {
   const [viewing, setViewing] = useState<Committee>()
   const linkedIds = new Set((jurisdictions.data || []).map((j) => j.committee_id))
   const linkedNames = (committees.data || []).filter((c) => linkedIds.has(c.id)).map((c) => c.name)
-  const [status, setStatus] = useState("")
+  const [committeeType, setCommitteeType] = useState("")
   return (
     <>
       <ManagementPage
@@ -66,11 +68,10 @@ export default function Committees() {
         )}
         defaults={{
           name: "",
-          type: "",
+          type: "Standing",
           purpose: "",
           mandate: "",
           qualification_requirements: "",
-          status: "active",
         }}
         fields={(_editing, row) => [
           {
@@ -85,7 +86,6 @@ export default function Committees() {
             disabled: !can(window.APP_CONFIG, "jurisdictions.view"),
             placeholder: "Select a committee linked to Jurisdiction",
           },
-          { name: "type", label: "Committee type" },
           { name: "purpose", label: "Purpose", type: "textarea" },
           { name: "mandate", label: "Mandate", type: "textarea" },
           {
@@ -94,10 +94,10 @@ export default function Committees() {
             type: "textarea",
           },
           {
-            name: "status",
-            label: "Status",
+            name: "type",
+            label: "Committee Type",
             required: true,
-            items: options(["active", "inactive", "dissolved"]),
+            items: committeeTypes,
           },
         ]}
         columns={[
@@ -106,7 +106,6 @@ export default function Committees() {
             header: "Committee",
             cell: ({ row }) => <strong className="tw:font-semibold">{row.original.name}</strong>,
           },
-          { accessorKey: "type", header: "Type" },
           {
             id: "members",
             header: "Members",
@@ -137,9 +136,9 @@ export default function Committees() {
             ),
           },
           {
-            accessorKey: "status",
-            header: "Status",
-            cell: ({ row }) => <StatusBadge value={row.original.status} />,
+            accessorKey: "type",
+            header: "Committee Type",
+            cell: ({ row }) => <StatusBadge value={row.original.type} />,
           },
           {
             accessorKey: "created_at",
@@ -149,14 +148,16 @@ export default function Committees() {
         ]}
         filter={
           <SelectBox
-            label="Filter committee status"
-            value={status}
-            onChange={setStatus}
-            items={options(["active", "inactive", "dissolved"])}
-            placeholder="All statuses"
+            label="Filter committee type"
+            value={committeeType}
+            onChange={setCommitteeType}
+            items={committeeTypes}
+            placeholder="All committee types"
           />
         }
-        filteredData={(rows) => (status ? rows.filter((row) => row.status === status) : rows)}
+        filteredData={(rows) =>
+          committeeType ? rows.filter((row) => row.type === committeeType) : rows
+        }
         before={
           <StatGrid>
             {[
@@ -168,24 +169,24 @@ export default function Committees() {
                 tone: "blue",
               },
               {
-                label: "Active",
-                value: committees.data?.filter((c) => c.status === "active").length,
+                label: "Standing",
+                value: committees.data?.filter((c) => c.type === "Standing").length,
                 icon: CircleCheck,
-                hint: "Moving the community forward",
+                hint: "Ongoing committee responsibilities",
                 tone: "green",
               },
               {
-                label: "Inactive",
-                value: committees.data?.filter((c) => c.status === "inactive").length,
-                icon: Pause,
-                hint: "Paused for the moment",
+                label: "Ad Hoc",
+                value: committees.data?.filter((c) => c.type === "Ad Hoc").length,
+                icon: Timer,
+                hint: "Formed for a specific purpose",
                 tone: "gold",
               },
               {
-                label: "Dissolved",
-                value: committees.data?.filter((c) => c.status === "dissolved").length,
-                icon: Archive,
-                hint: "Part of the community record",
+                label: "Advisory",
+                value: committees.data?.filter((c) => c.type === "Advisory").length,
+                icon: Lightbulb,
+                hint: "Providing guidance and recommendations",
                 tone: "purple",
               },
             ].map((item) => (
@@ -215,8 +216,8 @@ export default function Committees() {
           {viewing && (
             <div className="tw:space-y-5">
               <div className="tw:flex tw:gap-3 tw:items-center">
-                <StatusBadge value={viewing.status} />
-                <span>{viewing.type || "No type specified"}</span>
+                <span className="tw:text-sm tw:text-muted-foreground">Committee Type</span>
+                <StatusBadge value={viewing.type} />
               </div>
               <dl className="tw:grid tw:gap-4 tw:sm:grid-cols-2">
                 {[

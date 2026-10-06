@@ -1,7 +1,7 @@
 import { h as e, n as t } from "./api-DVPVP-g0.js";
 import { B as n, R as r, _ as i, b as a, c as o, h as s, m as c, n as l, x as u, y as d } from "./hooks-CGjnItOC.js";
 import { t as f } from "./clock-3-DqrQmDOW.js";
-import { l as p, n as m, o as h, r as g, s as _, u as v } from "./app-B8tnWQbD.js";
+import { l as p, n as m, o as h, r as g, s as _, u as v } from "./app-4em4_PaO.js";
 import { t as y } from "./charts-DSojZOtP.js";
 //#region frontend/pages/dashboard.tsx
 var b = e();
@@ -111,7 +111,7 @@ function x() {
 					queries: [x],
 					children: x.data?.length ? x.data.slice(0, 4).map((e) => /* @__PURE__ */ (0, b.jsxs)("div", {
 						className: "ui-list-row",
-						children: [/* @__PURE__ */ (0, b.jsxs)("div", { children: [/* @__PURE__ */ (0, b.jsx)("strong", { children: e.name }), /* @__PURE__ */ (0, b.jsx)("small", { children: e.type || "General committee" })] }), /* @__PURE__ */ (0, b.jsx)(u, { value: e.status })]
+						children: [/* @__PURE__ */ (0, b.jsx)("div", { children: /* @__PURE__ */ (0, b.jsx)("strong", { children: e.name }) }), /* @__PURE__ */ (0, b.jsx)(u, { value: e.type })]
 					}, e.id)) : /* @__PURE__ */ (0, b.jsx)(o, { title: t(window.APP_CONFIG, "committees.view") ? "No committees yet" : "Committee data is restricted" })
 				})
 			})]

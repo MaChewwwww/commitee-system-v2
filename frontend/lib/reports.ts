@@ -15,10 +15,10 @@ export function buildReport(
   if (type === "committee")
     return {
       title: "Committee Report",
-      headers: ["Name", "Type", "Purpose", "Status", "Created"],
+      headers: ["Name", "Committee Type", "Purpose", "Created"],
       rows: committees
         .filter((c) => !committeeId || c.id === committeeId)
-        .map((c) => [c.name, c.type || "—", c.purpose || "—", c.status, dateLabel(c.created_at)]),
+        .map((c) => [c.name, c.type || "—", c.purpose || "—", dateLabel(c.created_at)]),
     }
   if (type === "member")
     return {

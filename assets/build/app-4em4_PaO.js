@@ -2028,16 +2028,16 @@ function li({ children: e }) {
 //#endregion
 //#region frontend/app.tsx
 var ui = /* @__PURE__ */ e({ App: () => mi }), di = {
-	login: () => import("./login-DFWNwPX-.js"),
-	dashboard: () => import("./dashboard-1ePqHi8D.js"),
-	members: () => import("./members-BlTvAcbA.js"),
-	committees: () => import("./committees-FRSoLIql.js"),
-	assignments: () => import("./assignments-FMuQm1Tu.js"),
-	jurisdiction: () => import("./jurisdiction-CtweGuVl.js"),
-	workload: () => import("./workload-B6LKvM-q.js"),
-	performance: () => import("./performance-BZho3lh1.js"),
-	reports: () => import("./reports-BvI2mHPJ.js"),
-	users: () => import("./users-DmR0ts9P.js"),
+	login: () => import("./login-ouLSioAi.js"),
+	dashboard: () => import("./dashboard-RUzStjBf.js"),
+	members: () => import("./members-DMgm_K4P.js"),
+	committees: () => import("./committees-Cj7bkvL3.js"),
+	assignments: () => import("./assignments-COs2W8fa.js"),
+	jurisdiction: () => import("./jurisdiction-B1DosU4-.js"),
+	workload: () => import("./workload-mOaHzvqq.js"),
+	performance: () => import("./performance-GLlm5kV7.js"),
+	reports: () => import("./reports-SakCdI6q.js"),
+	users: () => import("./users-DM2n8DRs.js"),
 	forbidden: () => import("./forbidden-B0KFy6wT.js")
 }, fi = new ke({ defaultOptions: {
 	queries: {

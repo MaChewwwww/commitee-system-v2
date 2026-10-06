@@ -53,6 +53,11 @@ function committeeText(array $data, string $field, int $maximumLength, bool $req
 }
 
 function validatedCommittee(array $data): array {
+    $type = $data['type'] ?? null;
+    if (!is_string($type) || !in_array($type, ['Standing', 'Ad Hoc', 'Advisory'], true)) {
+        committeeResponse(['success' => false, 'message' => 'Committee Type must be Standing, Ad Hoc, or Advisory.'], 400);
+    }
+
     $status = $data['status'] ?? 'active';
     if (!is_string($status) || !in_array($status, ['active', 'inactive', 'dissolved'], true)) {
         committeeResponse(['success' => false, 'message' => 'Status must be active, inactive, or dissolved.'], 400);
@@ -60,7 +65,7 @@ function validatedCommittee(array $data): array {
 
     return [
         'name' => committeeText($data, 'name', 255, true),
-        'type' => committeeText($data, 'type', 100),
+        'type' => $type,
         'purpose' => committeeText($data, 'purpose', 65535),
         'mandate' => committeeText($data, 'mandate', 65535),
         'qualification_requirements' => committeeText($data, 'qualification_requirements', 65535),
@@ -150,13 +155,13 @@ try {
             requirePermission('committees.update');
             $data = committeeInput();
             $id = committeeId($data);
-            $committee = validatedCommittee($data);
-
-            $exists = $pdo->prepare('SELECT id FROM committees WHERE id = :id');
+            $exists = $pdo->prepare('SELECT status FROM committees WHERE id = :id');
             $exists->execute(['id' => $id]);
-            if ($exists->fetchColumn() === false) {
+            $existingStatus = $exists->fetchColumn();
+            if ($existingStatus === false) {
                 committeeResponse(['success' => false, 'message' => 'Committee not found.'], 404);
             }
+            $committee = validatedCommittee($data + ['status' => $existingStatus]);
 
             $update = $pdo->prepare(
                 'UPDATE committees SET name = :name, type = :type, purpose = :purpose, mandate = :mandate, '

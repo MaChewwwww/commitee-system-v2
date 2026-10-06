@@ -3,7 +3,7 @@ import { t } from "./react-B4u1yd7E.js";
 import { a as n, h as r, i, l as a, n as o, o as s, s as c } from "./api-DVPVP-g0.js";
 import { C as l, H as ee, L as te, R as ne, S as re, _ as u, a as d, b as ie, d as f, g as p, h as m, l as h, m as g, n as _, o as v, r as y, s as b, t as x, u as S, v as ae, x as C, y as w } from "./hooks-CGjnItOC.js";
 import { n as oe, t as se } from "./trash-C6NxJFw3.js";
-import { i as ce, n as T } from "./app-B8tnWQbD.js";
+import { i as ce, n as T } from "./app-4em4_PaO.js";
 import { a as E, s as le, t as D } from "./calculations-Pe71IOFb.js";
 import { t as O } from "./charts-DSojZOtP.js";
 //#region node_modules/lucide-react/dist/esm/icons/coffee.mjs

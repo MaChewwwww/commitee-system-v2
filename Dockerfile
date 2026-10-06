@@ -10,6 +10,12 @@ RUN npm run build
 
 FROM php:8.2-apache
 
+# API text validation uses mb_strlen, including Filipino names and legal references.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libonig-dev \
+    && docker-php-ext-install pdo pdo_mysql mbstring \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy application source
 COPY . /var/www/html/
 COPY --from=ui-build /app/assets/build/ /var/www/html/assets/build/
@@ -26,7 +32,6 @@ RUN echo '<VirtualHost *:80>\n\
 # Apache server name & rewrite module
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf \
     && a2enmod rewrite \
-    && docker-php-ext-install pdo pdo_mysql \
     && chown -R www-data:www-data /var/www/html
 
 EXPOSE 80

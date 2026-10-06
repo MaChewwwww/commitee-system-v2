@@ -45,6 +45,7 @@ export function ManagementPage<K extends Exclude<Resource, "roles">>({
   editContent,
   dialogClassName,
   onView,
+  sectionTitle,
 }: {
   resource: K
   singular: string
@@ -61,17 +62,23 @@ export function ManagementPage<K extends Exclude<Resource, "roles">>({
   editContent?: (row: Resources[K]) => ReactNode
   dialogClassName?: string
   onView?: (row: Resources[K]) => void
+  sectionTitle?: string
 }) {
   const data = useResource(resource)
+  const permissionResource = resource === "penalties" ? "jurisdictions" : resource
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Resources[K] | undefined>()
   const [values, setValues] = useState<FormValues>(defaults)
   const [validation, setValidation] = useState<Error | null>(null)
   const [deleting, setDeleting] = useState<Resources[K] | undefined>()
   const notice = useNotice()
+  const relatedResources: Resource[] =
+    resource === "jurisdictions" || resource === "committees"
+      ? ["committees", "jurisdictions"]
+      : [resource]
   const saveAction = useAction(
     (payload: { body: object; editing: boolean }) => save(resource, payload.body, payload.editing),
-    [resource],
+    relatedResources,
   )
   const deleteAction = useAction((id: string) => remove(resource, id), [resource])
   function edit(row?: Resources[K]) {
@@ -138,7 +145,7 @@ export function ManagementPage<K extends Exclude<Resource, "roles">>({
               <TooltipContent>View {singular.toLowerCase()}</TooltipContent>
             </Tooltip>
           )}
-          {can(window.APP_CONFIG, `${resource}.update`) && resource !== "assignments" && (
+          {can(window.APP_CONFIG, `${permissionResource}.update`) && resource !== "assignments" && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -153,7 +160,7 @@ export function ManagementPage<K extends Exclude<Resource, "roles">>({
               <TooltipContent>Edit {singular.toLowerCase()}</TooltipContent>
             </Tooltip>
           )}
-          {can(window.APP_CONFIG, `${resource}.delete`) &&
+          {can(window.APP_CONFIG, `${permissionResource}.delete`) &&
             (!canDelete || canDelete(row.original)) && (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -181,13 +188,16 @@ export function ManagementPage<K extends Exclude<Resource, "roles">>({
     <>
       <div className="ui-page-actions">
         <p>{describe || `Manage ${resource} and keep your workspace up to date.`}</p>
-        {can(window.APP_CONFIG, `${resource}.create`) && (
+        {can(window.APP_CONFIG, `${permissionResource}.create`) && (
           <AddButton onClick={() => edit()}>Add {singular.toLowerCase()}</AddButton>
         )}
       </div>
       {before}
       <Section
-        title={`${resource === "jurisdictions" ? "Jurisdiction" : resource.charAt(0).toUpperCase() + resource.slice(1)} directory`}
+        title={
+          sectionTitle ||
+          `${resource === "jurisdictions" ? "Jurisdiction" : resource.charAt(0).toUpperCase() + resource.slice(1)} directory`
+        }
         description="Find the details you need. Keep the work moving."
       >
         <QueryState queries={[data, ...queries]}>

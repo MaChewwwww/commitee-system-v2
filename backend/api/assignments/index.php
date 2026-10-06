@@ -19,6 +19,7 @@ ob_start();
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/auth.php';
 require_once __DIR__ . '/../../config/rbac.php';
+require_once __DIR__ . '/../../domain/lifecycle.php';
 
 corsHeaders();
 ob_clean();
@@ -133,6 +134,15 @@ try {
             if (!assignmentExists($pdo, 'members', $memberId)) {
                 assignmentResponse(['success' => false, 'message' => 'Member not found.'], 404);
             }
+            workflowAssertCommitteeOpen($pdo, $committeeId);
+            $pdo->beginTransaction();
+            $lock = $pdo->prepare('SELECT id FROM committees WHERE id=:id FOR UPDATE');
+            $lock->execute(['id'=>$committeeId]);
+            if ($role !== 'Member') {
+                $office = $pdo->prepare('SELECT id FROM committee_members WHERE committee_id=:cid AND role=:role LIMIT 1');
+                $office->execute(['cid'=>$committeeId,'role'=>$role]);
+                if ($office->fetchColumn() !== false) throw new DomainException('This committee already has a ' . $role . '.', 409);
+            }
 
             $duplicate = $pdo->prepare(
                 'SELECT id FROM committee_members WHERE committee_id = :committee_id AND member_id = :member_id LIMIT 1'
@@ -157,7 +167,7 @@ try {
                 ], 409);
             }
 
-            $pdo->beginTransaction();
+            if (!$pdo->inTransaction()) $pdo->beginTransaction();
             $before = $pdo->query('SELECT id FROM committee_members')->fetchAll(PDO::FETCH_COLUMN);
             $knownIds = array_fill_keys($before, true);
 
@@ -200,8 +210,19 @@ try {
             }
             rbacAssertCommitteeAccess($existing['committee_id'] ?? null);
 
+            workflowAssertCommitteeOpen($pdo, $existing['committee_id']);
+            $pdo->beginTransaction();
+            $lock = $pdo->prepare('SELECT id FROM committees WHERE id=:id FOR UPDATE');
+            $lock->execute(['id'=>$existing['committee_id']]);
+            if ($role !== 'Member') {
+                $office = $pdo->prepare('SELECT id FROM committee_members WHERE committee_id=:cid AND role=:role AND id<>:id LIMIT 1');
+                $office->execute(['cid'=>$existing['committee_id'],'role'=>$role,'id'=>$id]);
+                if ($office->fetchColumn() !== false) throw new DomainException('This committee already has a ' . $role . '.', 409);
+            }
+
             $update = $pdo->prepare('UPDATE committee_members SET role = :role WHERE id = :id');
             $update->execute(['role' => $role, 'id' => $id]);
+            $pdo->commit();
 
             $record = assignmentRecord($pdo, $id);
             assignmentResponse([
@@ -220,6 +241,12 @@ try {
                 assignmentResponse(['success' => false, 'message' => 'Assignment not found.'], 404);
             }
             rbacAssertCommitteeAccess($existing['committee_id'] ?? null);
+            $pdo->beginTransaction();
+            $lock=$pdo->prepare('SELECT id FROM committees WHERE id=:id FOR UPDATE');
+            $lock->execute(['id'=>$existing['committee_id']]);
+            $open = $pdo->prepare("SELECT COUNT(*) FROM tasks WHERE committee_id=:cid AND member_id=:mid AND status<>'completed'");
+            $open->execute(['cid'=>$existing['committee_id'],'mid'=>$existing['member_id']]);
+            if ($open->fetchColumn() > 0) throw new DomainException('This member has unfinished committee tasks. Finish the work before removing membership.', 409);
 
             $delete = $pdo->prepare('DELETE FROM committee_members WHERE id = :id');
             $delete->execute(['id' => $id]);
@@ -227,12 +254,16 @@ try {
                 assignmentResponse(['success' => false, 'message' => 'Assignment could not be removed.'], 500);
             }
 
+            $pdo->commit();
             assignmentResponse(['success' => true, 'message' => 'Assignment removed successfully.']);
 
         default:
             header('Allow: GET, POST, PUT, DELETE, OPTIONS');
             assignmentResponse(['success' => false, 'message' => 'Method not allowed.'], 405);
     }
+} catch (DomainException $exception) {
+    if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
+    assignmentResponse(['success'=>false,'message'=>$exception->getMessage()], (int)$exception->getCode() ?: 400);
 } catch (PDOException $exception) {
     if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
         $pdo->rollBack();

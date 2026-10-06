@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../config/ai.php';
 corsHeaders();
 ob_clean();
 requirePermission('ai.use');
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') { http_response_code(405); header('Allow: POST, OPTIONS'); echo json_encode(['success'=>false,'message'=>'Use POST for AI requests.']); exit; }
 
 const AI_REC_UUID = '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
 
@@ -36,7 +37,8 @@ try {
     $preferredPosition = isset($data['preferred_position']) && is_string($data['preferred_position'])
         ? trim($data['preferred_position'])
         : '';
-    $maxWorkload = 5;
+    $maxWorkload = filter_var($data['max_workload'] ?? 5, FILTER_VALIDATE_INT);
+    if ($maxWorkload === false || $maxWorkload < 1 || $maxWorkload > 5) aiRecResponse(['success'=>false,'message'=>'Workload limit must be between 1 and 5.'],400);
 
     if (!is_string($committeeId) || !preg_match(AI_REC_UUID, $committeeId)) {
         aiRecResponse(['success' => false, 'message' => 'Committee required'], 400);
@@ -59,8 +61,9 @@ try {
          FROM members WHERE availability = 'available'"
     )->fetchAll();
 
+    $members = array_values(array_filter($members, fn($m)=>rbacCanAccessMember($m['id'])));
     $pendingTasks = $pdo->query(
-        "SELECT member_id FROM tasks WHERE status = 'pending' AND member_id IS NOT NULL"
+        "SELECT member_id FROM tasks WHERE status <> 'completed' AND member_id IS NOT NULL"
     )->fetchAll();
 
     $taskCounts = [];
@@ -106,7 +109,7 @@ try {
         $eligibleMembers
     );
 
-    $prompt = "You are an AI for SK (Sangguniang Kabataan) Committee Management System in the Philippines.
+    $prompt = "You are an AI for SP (Sangguniang Panlungsod) Committee Management System in the Philippines.
 
 Committee: {$committee['name']}
 Type: " . ($committee['type'] ?? 'General') . "

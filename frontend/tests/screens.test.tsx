@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { render, screen, waitFor, within, act } from "@testing-library/react"
+import { render, screen, waitFor, within, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -63,8 +63,8 @@ describe("all redesigned screens", () => {
     [Members, "members", "Members directory"],
     [Committees, "committees", "Committees directory"],
     [Assignments, "assignments", "Assignments directory"],
-    [Jurisdiction, "jurisdiction", "Jurisdiction directory"],
-    [Workload, "workload", "Task board"],
+    [Jurisdiction, "jurisdiction", "Jurisdiction matrix"],
+    [Workload, "workload", "Task inventory"],
     [Performance, "performance", "Performance directory"],
     [Reports, "reports", "Turn your work into a clear report"],
     [Users, "users", "Users directory"],
@@ -79,6 +79,132 @@ describe("all redesigned screens", () => {
   })
 })
 describe("forms and authorization", () => {
+  it("assigns tasks only to committee roster options and saves an open task", async () => {
+    const fetcher = mockApi()
+    mount(Assignments, "assignments")
+    await screen.findAllByText("Alex Reyes")
+    await userEvent.click(screen.getByRole("button", { name: "Assign task" }))
+    await choose("Task committee", "Youth Development")
+    await userEvent.click(screen.getByRole("combobox", { name: "Task handler" }))
+    expect(screen.queryByRole("option", { name: "Sam Cruz" })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole("option", { name: "Alex Reyes" }))
+    await userEvent.type(
+      screen.getByRole("textbox", { name: /Task title/ }),
+      "Prepare committee brief",
+    )
+    await userEvent.click(screen.getByRole("button", { name: "Save changes" }))
+    await waitFor(() => {
+      const call = fetcher.mock.calls.find(
+        ([url, init]) => String(url).endsWith("tasks/index.php") && init?.method === "POST",
+      )
+      expect(JSON.parse(String(call?.[1]?.body))).toMatchObject({
+        committee_id: "committee-1",
+        member_id: "member-1",
+        title: "Prepare committee brief",
+        status: "pending",
+      })
+    })
+  })
+
+  it("records attendance on Members without supplying calculated performance scores", async () => {
+    const fetcher = mockApi()
+    mount(Members, "members")
+    await screen.findByText("Alex Reyes")
+    await userEvent.click(screen.getByRole("button", { name: "Record attendance" }))
+    await choose("Attendance member", "Alex Reyes")
+    await userEvent.type(screen.getByLabelText(/Attendance rate/), "96")
+    await userEvent.click(screen.getByRole("button", { name: "Save changes" }))
+    await waitFor(() => {
+      const call = fetcher.mock.calls.find(
+        ([url, init]) => String(url).endsWith("performance/index.php") && init?.method === "POST",
+      )
+      const body = JSON.parse(String(call?.[1]?.body))
+      expect(body).toMatchObject({ member_id: "member-1", committee_id: null, attendance_rate: 96 })
+      expect(body).not.toHaveProperty("performance_score")
+      expect(body).not.toHaveProperty("task_completion_rate")
+    })
+  })
+
+  it("saves jurisdiction scope details and filters by level", async () => {
+    const fetcher = mockApi()
+    mount(Jurisdiction, "jurisdiction")
+    await userEvent.click(await screen.findByRole("button", { name: "Edit Jurisdiction" }))
+    await choose("Level", "Monitoring")
+    await userEvent.type(
+      screen.getByRole("textbox", { name: /Legal basis/ }),
+      "Resolution 2026-014",
+    )
+    fireEvent.change(screen.getByLabelText(/Effective from/), { target: { value: "2026-10-06" } })
+    fireEvent.change(screen.getByLabelText(/Effective until/), { target: { value: "2026-12-31" } })
+    await userEvent.click(screen.getByRole("button", { name: "Save changes" }))
+    await waitFor(() => {
+      const request = fetcher.mock.calls.find(
+        ([url, init]) => String(url).endsWith("jurisdictions/index.php") && init?.method === "PUT",
+      )
+      expect(request).toBeDefined()
+      expect(JSON.parse(String(request?.[1]?.body))).toMatchObject({
+        level: "Monitoring",
+        legal_basis: "Resolution 2026-014",
+        effectivity_date: "2026-10-06",
+        effective_until: "2026-12-31",
+        area_name: "Barangay Poblacion",
+      })
+      expect(JSON.parse(String(request?.[1]?.body))).not.toHaveProperty("category")
+    })
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    await choose("Filter by level", "Recommendatory")
+    expect(screen.queryByRole("button", { name: "Edit Jurisdiction" })).not.toBeInTheDocument()
+  })
+
+  it("adds a penalty with descriptions and amounts using jurisdiction permissions", async () => {
+    window.APP_CONFIG = config({
+      role: "administrator",
+      permissions: ["jurisdictions.view", "jurisdictions.create", "committees.view"],
+    })
+    const fetcher = mockApi()
+    mount(Jurisdiction, "jurisdiction")
+    await screen.findByText("Sample violation")
+    await userEvent.click(screen.getByRole("button", { name: "Add penalty" }))
+    await userEvent.type(screen.getByRole("textbox", { name: /Violation/ }), "Another violation")
+    await userEvent.type(screen.getByRole("textbox", { name: /1st offense/ }), "Warning")
+    await userEvent.type(screen.getByRole("textbox", { name: /2nd offense/ }), "₱500")
+    await userEvent.type(screen.getByRole("textbox", { name: /3rd offense/ }), "₱1,000")
+    await userEvent.type(screen.getByRole("textbox", { name: /Legal basis/ }), "Ordinance 2026-014")
+    await userEvent.click(screen.getByRole("button", { name: "Save changes" }))
+    await waitFor(() => {
+      const request = fetcher.mock.calls.find(
+        ([url, init]) => String(url).endsWith("penalties/index.php") && init?.method === "POST",
+      )
+      expect(request).toBeDefined()
+      expect(JSON.parse(String(request?.[1]?.body))).toEqual({
+        violation: "Another violation",
+        first_offense: "Warning",
+        second_offense: "₱500",
+        third_offense: "₱1,000",
+        legal_basis: "Ordinance 2026-014",
+      })
+    })
+    expect(screen.queryByRole("button", { name: "Edit Penalty" })).not.toBeInTheDocument()
+  })
+
+  it("keeps both jurisdiction matrices read-only without mutation permissions", async () => {
+    window.APP_CONFIG = config({
+      role: "sk_member",
+      permissions: ["jurisdictions.view", "committees.view"],
+    })
+    const fetcher = mockApi()
+    mount(Jurisdiction, "jurisdiction")
+    await screen.findByText("Sample violation")
+    expect(
+      screen.queryByRole("button", {
+        name: /^(Add jurisdiction|Add penalty|Edit Jurisdiction|Edit Penalty|Remove Jurisdiction|Remove Penalty)$/,
+      }),
+    ).not.toBeInTheDocument()
+    expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === "GET")).toBe(
+      true,
+    )
+  })
+
   it("replaces committee status with the three committee types and saves the selected type", async () => {
     const fetcher = mockApi()
     mount(Committees, "committees")
@@ -104,6 +230,38 @@ describe("forms and authorization", () => {
       const body = JSON.parse(String(request?.[1]?.body))
       expect(body.type).toBe("Ad Hoc")
       expect(body).not.toHaveProperty("status")
+    })
+  })
+
+  it("shows issuance details in the list and view and saves edits", async () => {
+    const fetcher = mockApi()
+    mount(Committees, "committees")
+    await screen.findByRole("button", { name: "View Committee" })
+    expect(screen.getByRole("columnheader", { name: "Date issued" })).toBeInTheDocument()
+    expect(screen.getByRole("columnheader", { name: "Issued by" })).toBeInTheDocument()
+    expect(screen.getByText("SK Chairperson")).toBeInTheDocument()
+    await userEvent.click(screen.getByRole("button", { name: "View Committee" }))
+    let dialog = screen.getByRole("dialog")
+    expect(within(dialog).getByText("Date issued")).toBeInTheDocument()
+    expect(within(dialog).getByText("SK Chairperson")).toBeInTheDocument()
+    await userEvent.keyboard("{Escape}")
+    await userEvent.click(screen.getByRole("button", { name: "Edit Committee" }))
+    dialog = screen.getByRole("dialog")
+    const date = within(dialog).getByLabelText("Date issued")
+    expect(date).toHaveValue("2026-09-30")
+    const issuer = within(dialog).getByRole("textbox", { name: "Issued by" })
+    await userEvent.clear(issuer)
+    await userEvent.type(issuer, "Sangguniang Kabataan Council")
+    await userEvent.click(within(dialog).getByRole("button", { name: "Save changes" }))
+    await waitFor(() => {
+      const request = fetcher.mock.calls.find(
+        ([url, init]) => String(url).includes("committees/index.php") && init?.method === "PUT",
+      )
+      expect(request).toBeDefined()
+      expect(JSON.parse(String(request?.[1]?.body))).toMatchObject({
+        issued_date: "2026-09-30",
+        issued_by: "Sangguniang Kabataan Council",
+      })
     })
   })
 
@@ -134,14 +292,12 @@ describe("forms and authorization", () => {
     )
   })
 
-  it("uses jurisdiction-linked committee names and shows their coverage while editing", async () => {
+  it("accepts authority-based committee names without a jurisdiction dependency and shows their coverage while editing", async () => {
     mockApi()
     mount(Committees, "committees")
     await userEvent.click(await screen.findByRole("button", { name: "Edit Committee" }))
-    expect(screen.getByRole("combobox", { name: /Committee name/ })).toHaveTextContent(
-      "Youth Development",
-    )
-    expect(screen.queryByRole("textbox", { name: /Committee name/ })).not.toBeInTheDocument()
+    expect(screen.getByRole("textbox", { name: /Committee name/ })).toHaveValue("Youth Development")
+    expect(screen.queryByRole("combobox", { name: /Committee name/ })).not.toBeInTheDocument()
     expect(screen.getByText("Barangay Poblacion · Education")).toBeInTheDocument()
     expect(await screen.findByRole("combobox", { name: "Role for Alex Reyes" })).toHaveTextContent(
       "Chairperson",
@@ -247,7 +403,7 @@ describe("forms and authorization", () => {
         : undefined,
     )
     mount(Members, "members")
-    await screen.findByText("Alex Reyes")
+    await screen.findAllByText("Alex Reyes")
     await userEvent.click(screen.getByRole("button", { name: "Add member" }))
     await userEvent.type(screen.getByLabelText(/Full name/), "Taylor Santos")
     await userEvent.type(screen.getByLabelText("Email address"), "taylor@example.test")
@@ -267,7 +423,7 @@ describe("forms and authorization", () => {
       path.endsWith("members/index.php") && init?.method === "POST" ? pending : undefined,
     )
     mount(Members, "members")
-    await screen.findByText("Alex Reyes")
+    await screen.findAllByText("Alex Reyes")
     await userEvent.click(screen.getByRole("button", { name: "Add member" }))
     await userEvent.type(screen.getByLabelText(/Full name/), "New member")
     const save = screen.getByRole("button", { name: "Save changes" })
@@ -281,7 +437,7 @@ describe("forms and authorization", () => {
     window.APP_CONFIG = config({ role: "sk_member", permissions: ["members.view"] })
     const fetch = mockApi()
     mount(Members, "members")
-    await screen.findByText("Alex Reyes")
+    await screen.findAllByText("Alex Reyes")
     expect(screen.queryByRole("button", { name: "Add member" })).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Edit Member" })).not.toBeInTheDocument()
     expect(fetch.mock.calls.every(([path]) => String(path).endsWith("members/index.php"))).toBe(
@@ -324,7 +480,7 @@ describe("forms and authorization", () => {
   it("searches and filters member tables without changing API data", async () => {
     mockApi()
     mount(Members, "members")
-    await screen.findByText("Alex Reyes")
+    await screen.findAllByText("Alex Reyes")
     await userEvent.type(screen.getByRole("textbox", { name: "Search members…" }), "Alex")
     expect(screen.queryByText("Sam Cruz")).not.toBeInTheDocument()
     await userEvent.clear(screen.getByRole("textbox", { name: "Search members…" }))
@@ -376,7 +532,7 @@ describe("OTP and AI workflows", () => {
         : undefined,
     )
     mount(Assignments, "assignments")
-    await screen.findByText("Alex Reyes")
+    await screen.findAllByText("Alex Reyes")
     await choose("Committee", "Youth Development")
     await userEvent.click(screen.getByRole("button", { name: /Find recommended members/ }))
     expect(await screen.findByText("A good fit")).toBeInTheDocument()
@@ -392,39 +548,69 @@ describe("OTP and AI workflows", () => {
       role: "Member",
     })
   })
-  it("keeps previous AI analysis visible when a later request fails", async () => {
-    let fail = false
-    mockApi((path) =>
-      path.endsWith("ai/workload.php")
-        ? new Response(
-            JSON.stringify(
-              fail
-                ? { success: false, message: "AI service unavailable" }
-                : {
-                    success: true,
-                    ai_analysis: {
-                      alert_level: "green",
-                      summary: "Your team has room to grow",
-                      recommendations: [],
-                    },
-                  },
-            ),
-            { status: fail ? 503 : 200 },
-          )
-        : undefined,
-    )
+  it("monitors tasks without mutation controls and combines task filters", async () => {
+    const fetcher = mockApi()
     mount(Workload, "workload")
-    await userEvent.click(screen.getByRole("button", { name: /Analyze workload/ }))
-    expect(await screen.findByText("Your team has room to grow")).toBeInTheDocument()
-    fail = true
-    await userEvent.click(screen.getByRole("button", { name: /Analyze workload/ }))
-    expect(await screen.findByText("AI service unavailable")).toBeInTheDocument()
-    expect(screen.getByText("Your team has room to grow")).toBeInTheDocument()
+    await screen.findByText("Organize youth forum")
+    expect(
+      screen.queryByRole("button", { name: /^(Add task|Complete|Remove|Analyze workload)$/ }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByText("1 of 5")).toBeInTheDocument()
+    expect(screen.getByText("SK Chairperson")).toBeInTheDocument()
+    await choose("Filter task status", "Completed")
+    expect(screen.queryByText("Organize youth forum")).not.toBeInTheDocument()
+    expect(screen.getByText("Prepare program brief")).toBeInTheDocument()
+    await choose("Filter task committee", "Youth Development")
+    await choose("Filter task member", "Sam Cruz")
+    expect(screen.queryByText("Prepare program brief")).not.toBeInTheDocument()
+    await choose("Filter task member", "Alex Reyes")
+    expect(screen.getByText("Prepare program brief")).toBeInTheDocument()
+    await userEvent.type(screen.getByRole("textbox", { name: "Search tasks…" }), "missing")
+    expect(screen.queryByText("Prepare program brief")).not.toBeInTheDocument()
+    expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === "GET")).toBe(
+      true,
+    )
+  })
+
+  it("shows the completed-task chart and weighted member score table", async () => {
+    const fetcher = mockApi()
+    mount(Performance, "performance")
+    expect(
+      await screen.findByRole("img", {
+        name: /Completed tasks per member: Alex Reyes 1, Sam Cruz 0/,
+      }),
+    ).toBeInTheDocument()
+    const row = screen.getByRole("cell", { name: "Alex Reyes" }).closest("tr")!
+    expect(within(row).getByText("75%")).toBeInTheDocument()
+    expect(within(row).getByText("Good")).toBeInTheDocument()
+    const emptyRow = screen.getByRole("cell", { name: "Sam Cruz" }).closest("tr")!
+    expect(within(emptyRow).getByText("—")).toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: /Record attendance|Analyze performance/ }),
+    ).not.toBeInTheDocument()
+    expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === "GET")).toBe(
+      true,
+    )
   })
 })
 describe("report and shell workflows", () => {
   it("records generated metadata and uses subfolder-safe archive and session endpoints", async () => {
-    const fetch = mockApi()
+    const fetch = mockApi((path, init) =>
+      path.endsWith("reports/index.php") && init?.method === "POST"
+        ? new Response(
+            JSON.stringify({
+              success: true,
+              data: {
+                snapshot: {
+                  title: "Committee Report",
+                  headers: ["Name"],
+                  rows: [["Youth Development"]],
+                },
+              },
+            }),
+          )
+        : undefined,
+    )
     mount(Reports, "reports")
     await waitFor(() => expect(screen.queryByLabelText("Loading data")).not.toBeInTheDocument())
     await choose("Report type", "Committee report")

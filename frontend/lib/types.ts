@@ -27,6 +27,7 @@ export interface AppConfig {
   login: string
   assets: string
   userEmail: string
+  memberId?: string | null
   role: string
   roleLabel: string
   permissions: string[]
@@ -52,6 +53,10 @@ export interface Member extends Entity {
 }
 export interface Committee extends Entity {
   name: string
+  issued_date?: string | null
+  issued_by?: string | null
+  establishing_reference?: string | null
+  effective_until?: string | null
   type?: string
   purpose?: string
   mandate?: string
@@ -68,12 +73,28 @@ export interface Jurisdiction extends Entity {
   committee_id: string
   area_name: string
   category: string
+  level?: string | null
+  legal_basis?: string | null
+  effectivity_date?: string | null
+  effective_until?: string | null
+}
+export interface Penalty extends Entity {
+  violation: string
+  legal_basis?: string | null
+  first_offense: string
+  second_offense: string
+  third_offense: string
 }
 export interface Task extends Entity {
   member_id: string | null
   committee_id: string | null
   title: string
-  status: "pending" | "completed"
+  status: "pending" | "in_progress" | "awaiting_approval" | "completed"
+  submitted_at?: string | null
+  approved_at?: string | null
+  approved_by_user_id?: string | null
+  completed_at?: string | null
+  approved_by?: string | null
   due_date?: string | null
   updated_at?: string
   description?: string
@@ -103,12 +124,14 @@ export interface Report extends Entity {
   report_type: string
   date_from?: string | null
   date_to?: string | null
+  snapshot?: import("./reports").ReportDocument | null
 }
 export interface Resources {
   members: Member
   committees: Committee
   assignments: Assignment
   jurisdictions: Jurisdiction
+  penalties: Penalty
   tasks: Task
   performance: PerformanceRecord
   users: User
@@ -119,6 +142,7 @@ export type Resource = keyof Resources
 export interface ApiResult {
   success: boolean
   message?: string
+  data?: unknown
 }
 export interface Recommendation {
   member_id: string

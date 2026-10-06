@@ -27,6 +27,7 @@ export default function Users() {
         {
           name: "member_id",
           label: "Linked member",
+          required: ["sk_member", "committee_chairperson"].includes(row?.role_code || ""),
           items: (members.data || []).map((member) => ({
             value: member.id,
             label: member.full_name,

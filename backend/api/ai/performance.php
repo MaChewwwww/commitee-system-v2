@@ -7,10 +7,12 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/auth.php';
 require_once __DIR__ . '/../../config/rbac.php';
 require_once __DIR__ . '/../../config/ai.php';
+require_once __DIR__ . '/../../domain/reporting.php';
 
 corsHeaders();
 ob_clean();
 requirePermission('ai.use');
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') { http_response_code(405); header('Allow: POST, OPTIONS'); echo json_encode(['success'=>false,'message'=>'Use POST for AI requests.']); exit; }
 
 function aiPerfResponse(array $payload, int $status = 200): void {
     http_response_code($status);
@@ -39,82 +41,22 @@ try {
         )->fetchAll();
     }
 
-    $tasks = $pdo->query(
-        'SELECT id, member_id, status, due_date, updated_at FROM tasks'
-    )->fetchAll();
-    $performance = $pdo->query(
-        'SELECT member_id, attendance_rate, performance_score, created_at
-         FROM performance ORDER BY created_at DESC'
-    )->fetchAll();
-
-    $tasksByMember = [];
-    foreach ($tasks as $task) {
-        $mid = $task['member_id'] ?? null;
-        if ($mid) {
-            $tasksByMember[$mid][] = $task;
-        }
+    $members=array_values(array_filter($members,fn($m)=>rbacCanAccessMember($m['id'])));
+    $tasks=rbacFilterRows($pdo->query('SELECT * FROM tasks')->fetchAll());
+    $performance=rbacFilterRows($pdo->query('SELECT * FROM performance')->fetchAll());
+    $memberScores=workflowScores($members,$tasks,$performance);
+    foreach ($memberScores as &$score) {
+        $score['member_name']=$score['full_name'];
+        $score['final_score']=$score['performance_score'];
     }
-
-    $attendanceByMember = [];
-    foreach ($performance as $perf) {
-        $mid = $perf['member_id'] ?? null;
-        if ($mid && !isset($attendanceByMember[$mid])) {
-            $attendanceByMember[$mid] = (float) ($perf['attendance_rate'] ?? 0);
-        }
-    }
-
-    $memberScores = [];
-    foreach ($members as $member) {
-        $mid = $member['id'];
-        $memberTasks = $tasksByMember[$mid] ?? [];
-        $totalTasks = count($memberTasks);
-        $completedTasks = array_values(array_filter(
-            $memberTasks,
-            static fn(array $t): bool => ($t['status'] ?? '') === 'completed'
-        ));
-        $completedCount = count($completedTasks);
-        $onTimeTasks = count(array_filter(
-            $completedTasks,
-            static function (array $t): bool {
-                if (empty($t['due_date'])) {
-                    return false;
-                }
-                $updated = $t['updated_at'] ?? date('Y-m-d H:i:s');
-                return strtotime((string) $updated) <= strtotime((string) $t['due_date'] . ' 23:59:59');
-            }
-        ));
-
-        $attendanceRate = $attendanceByMember[$mid] ?? 0.0;
-        $taskCompletionRate = $totalTasks > 0 ? ($completedCount / $totalTasks) * 100 : 0;
-        $onTimeRate = $completedCount > 0 ? ($onTimeTasks / $completedCount) * 100 : 0;
-        $finalScore = ($taskCompletionRate * 0.50) + ($attendanceRate * 0.20) + ($onTimeRate * 0.30);
-
-        $memberScores[] = [
-            'member_id' => $mid,
-            'member_name' => $member['full_name'],
-            'position' => $member['position'],
-            'total_tasks' => $totalTasks,
-            'completed_tasks' => $completedCount,
-            'task_completion_rate' => round($taskCompletionRate, 2),
-            'attendance_rate' => round($attendanceRate, 2),
-            'on_time_rate' => round($onTimeRate, 2),
-            'final_score' => round($finalScore, 2),
-            'grade' => $finalScore >= 90
-                ? 'Excellent'
-                : ($finalScore >= 75
-                    ? 'Good'
-                    : ($finalScore >= 60 ? 'Average' : 'Needs Improvement')),
-        ];
-    }
-
-    usort($memberScores, static fn(array $a, array $b): int => $b['final_score'] <=> $a['final_score']);
+    unset($score);
 
     $lines = array_map(
         static fn(array $m): string => "- {$m['member_name']} | Score:{$m['final_score']}% | Tasks:{$m['completed_tasks']}/{$m['total_tasks']} | Attendance:{$m['attendance_rate']}% | OnTime:{$m['on_time_rate']}% | Grade:{$m['grade']}",
         $memberScores
     );
 
-    $prompt = "You are a performance analyst for SK Committee System Philippines.
+    $prompt = "You are a performance analyst for SP Committee System Philippines.
 
 Member Performance Data:
 " . implode("\n", $lines) . "

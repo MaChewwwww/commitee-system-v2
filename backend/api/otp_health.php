@@ -4,20 +4,21 @@
  * DELETE this file after debugging.
  *
  * Browser URL:
- *   https://YOUR-DOMAIN/backend/api/otp_health.php?k=CM-OTP-DIAG-2026
+ *   /backend/api/otp_health.php (administrator session and COMMITTEE_DIAGNOSTICS=1)
  *
  * Never prints passwords, API keys, or OTP codes.
  */
 declare(strict_types=1);
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/rbac.php';
+if (committeeEnv('COMMITTEE_DIAGNOSTICS','0') !== '1') { http_response_code(404); exit; }
+$diagnosticContext=currentUserContext();
+if ($diagnosticContext['role_code'] !== 'super_admin') rbacForbidden('Administrator access required.');
+
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Robots-Tag: noindex');
-
-if (!hash_equals('CM-OTP-DIAG-2026', (string) ($_GET['k'] ?? ''))) {
-    http_response_code(403);
-    echo json_encode(['ok' => false, 'message' => 'Forbidden']);
-    exit;
-}
 
 function healthRedact(string $message): string {
     $message = preg_replace('/password[=:]\s*\S+/i', 'password=[REDACTED]', $message) ?? $message;

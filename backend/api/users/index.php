@@ -74,6 +74,7 @@ try {
                 $memberId = $data['member_id'];
             }
 
+            if (in_array($roleCode,['sk_member','committee_chairperson'],true) && !$memberId) usersResponse(['success'=>false,'message'=>'Committee members and chairpersons require a linked member record.'],400);
             $dup = $pdo->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
             $dup->execute(['email' => $email]);
             if ($dup->fetchColumn() !== false) {
@@ -112,7 +113,7 @@ try {
                 usersResponse(['success' => false, 'message' => 'A valid user id is required.'], 400);
             }
 
-            $exists = $pdo->prepare('SELECT id, email FROM users WHERE id = :id LIMIT 1');
+            $exists = $pdo->prepare('SELECT u.id,u.email,u.member_id,r.code AS role_code FROM users u JOIN roles r ON r.id=u.role_id WHERE u.id=:id LIMIT 1');
             $exists->execute(['id' => $id]);
             $existing = $exists->fetch();
             if ($existing === false) {
@@ -163,6 +164,9 @@ try {
                 }
             }
 
+            $nextRole=$data['role'] ?? $existing['role_code'];
+            $nextMember=array_key_exists('member_id',$data) ? $data['member_id'] : $existing['member_id'];
+            if (in_array($nextRole,['sk_member','committee_chairperson'],true) && !$nextMember) usersResponse(['success'=>false,'message'=>'Committee members and chairpersons require a linked member record.'],400);
             if ($fields === []) {
                 usersResponse(['success' => false, 'message' => 'No changes provided.'], 400);
             }

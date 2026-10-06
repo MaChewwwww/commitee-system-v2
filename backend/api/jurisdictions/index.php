@@ -6,11 +6,12 @@ ob_start();
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/auth.php';
 require_once __DIR__ . '/../../config/rbac.php';
+require_once __DIR__ . '/../../domain/lifecycle.php';
 
 corsHeaders();
 ob_clean();
 
-const JURIS_SELECT = 'id, committee_id, area_name, category, created_at';
+const JURIS_SELECT = 'id, committee_id, area_name, category, level, legal_basis, effectivity_date, effective_until, created_at';
 const JURIS_UUID = '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
 
 function jurisResponse(array $payload, int $status = 200): void {
@@ -47,6 +48,24 @@ function jurisRecord(PDO $pdo, string $id): ?array {
     return $row === false ? null : $row;
 }
 
+function jurisDetails(array $data, ?string $legacyLevel = null): array {
+    $details = [];
+    foreach (['level' => 100, 'legal_basis' => 1000] as $field => $maximum) {
+        $value = $data[$field] ?? null;
+        if (!is_string($value) || trim($value) === '' || mb_strlen(trim($value)) > $maximum) {
+            jurisResponse(['success' => false, 'message' => ucfirst(str_replace('_', ' ', $field)) . ' is required and must be at most ' . $maximum . ' characters.'], 400);
+        }
+        $details[$field] = trim($value);
+    }
+    if (!in_array($details['level'],['Decision-making','Recommendatory','Monitoring'],true) && $details['level'] !== $legacyLevel) throw new DomainException('Level must be Decision-making, Recommendatory, or Monitoring.',400);
+    $details['effectivity_date'] = workflowDate($data['effectivity_date'] ?? null, 'Effective from');
+    $details['effective_until'] = workflowDate($data['effective_until'] ?? null, 'Effective until');
+    if ($details['effectivity_date'] && $details['effective_until'] && $details['effectivity_date'] > $details['effective_until']) {
+        throw new DomainException('Effective until must not precede effective from.', 400);
+    }
+    return $details;
+}
+
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 try {
@@ -62,6 +81,7 @@ try {
         case 'POST':
             requirePermission('jurisdictions.create');
             $data = jurisInput();
+            $details = jurisDetails($data);
             $committeeId = jurisUuid($data['committee_id'] ?? null, 'committee ID');
             $areaName = isset($data['area_name']) && is_string($data['area_name']) ? trim($data['area_name']) : '';
             if ($areaName === '') {
@@ -83,16 +103,21 @@ try {
             }
 
             $pdo->beginTransaction();
+            $term=$pdo->prepare('SELECT effective_until FROM committees WHERE id=:id FOR UPDATE');
+            $term->execute(['id'=>$committeeId]);
+            if (!$details['effective_until']) $details['effective_until']=$term->fetchColumn() ?: null;
+            if ($details['effective_until'] && $details['effectivity_date'] && $details['effectivity_date']>$details['effective_until']) throw new DomainException('Effective until must not precede effective from.',400);
+            workflowSetCommitteeEndDate($pdo,$committeeId,$details['effective_until']);
             $before = $pdo->query('SELECT id FROM jurisdictions')->fetchAll(PDO::FETCH_COLUMN);
             $known = array_fill_keys($before, true);
             $insert = $pdo->prepare(
-                'INSERT INTO jurisdictions (committee_id, area_name, category) VALUES (:committee_id, :area_name, :category)'
+                'INSERT INTO jurisdictions (committee_id, area_name, category, level, legal_basis, effectivity_date, effective_until) VALUES (:committee_id, :area_name, :category, :level, :legal_basis, :effectivity_date, :effective_until)'
             );
             $insert->execute([
                 'committee_id' => $committeeId,
                 'area_name' => $areaName,
                 'category' => $category,
-            ]);
+            ] + $details);
             $rows = $pdo->query('SELECT ' . JURIS_SELECT . ' FROM jurisdictions')->fetchAll();
             $created = array_values(array_filter($rows, static fn(array $r): bool => !isset($known[$r['id']])));
             if (count($created) !== 1) {
@@ -111,6 +136,9 @@ try {
             if ($areaName === '') {
                 jurisResponse(['success' => false, 'message' => 'Area name is required.'], 400);
             }
+            if (mb_strlen($areaName) > 255) {
+                jurisResponse(['success' => false, 'message' => 'Area name is too long.'], 400);
+            }
             $category = null;
             if (isset($data['category']) && is_string($data['category']) && trim($data['category']) !== '') {
                 $category = trim($data['category']);
@@ -119,20 +147,34 @@ try {
             if ($existing === null) {
                 jurisResponse(['success' => false, 'message' => 'Jurisdiction not found.'], 404);
             }
+            $details = jurisDetails($data + $existing, $existing["level"]);
+            if (!array_key_exists('category', $data)) {
+                $category = $existing['category'];
+            }
+            if ($category !== null && mb_strlen($category) > 100) {
+                jurisResponse(['success' => false, 'message' => 'Category is too long.'], 400);
+            }
             rbacAssertCommitteeAccess($existing['committee_id'] ?? null);
             rbacAssertCommitteeAccess($committeeId);
             if (!jurisExists($pdo, 'committees', $committeeId)) {
                 jurisResponse(['success' => false, 'message' => 'Committee not found.'], 404);
             }
+            $pdo->beginTransaction();
+            $term=$pdo->prepare('SELECT effective_until FROM committees WHERE id=:id FOR UPDATE');
+            $term->execute(['id'=>$committeeId]);
+            if (!$details['effective_until']) $details['effective_until']=$term->fetchColumn() ?: null;
+            if ($details['effective_until'] && $details['effectivity_date'] && $details['effectivity_date']>$details['effective_until']) throw new DomainException('Effective until must not precede effective from.',400);
+            workflowSetCommitteeEndDate($pdo,$committeeId,$details['effective_until']);
             $update = $pdo->prepare(
-                'UPDATE jurisdictions SET committee_id = :committee_id, area_name = :area_name, category = :category WHERE id = :id'
+                'UPDATE jurisdictions SET committee_id = :committee_id, area_name = :area_name, category = :category, level = :level, legal_basis = :legal_basis, effectivity_date = :effectivity_date, effective_until = :effective_until WHERE id = :id'
             );
             $update->execute([
                 'committee_id' => $committeeId,
                 'area_name' => $areaName,
                 'category' => $category,
                 'id' => $id,
-            ]);
+            ] + $details);
+            $pdo->commit();
             jurisResponse([
                 'success' => true,
                 'message' => 'Jurisdiction updated successfully.',
@@ -159,6 +201,9 @@ try {
             header('Allow: GET, POST, PUT, DELETE, OPTIONS');
             jurisResponse(['success' => false, 'message' => 'Method not allowed.'], 405);
     }
+} catch (DomainException $e) {
+    if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
+    jurisResponse(["success"=>false,"message"=>$e->getMessage()], $e->getCode() ?: 400);
 } catch (Throwable $e) {
     if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
         $pdo->rollBack();

@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../config/ai.php';
 corsHeaders();
 ob_clean();
 requirePermission('ai.use');
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') { http_response_code(405); header('Allow: POST, OPTIONS'); echo json_encode(['success'=>false,'message'=>'Use POST for AI requests.']); exit; }
 
 function aiReportResponse(array $payload, int $status = 200): void {
     http_response_code($status);
@@ -28,10 +29,13 @@ try {
         'SELECT id, full_name, position FROM members ORDER BY full_name ASC'
     )->fetchAll();
     $tasks = $pdo->query(
-        'SELECT id, member_id, status FROM tasks'
+        'SELECT id, committee_id, member_id, status FROM tasks'
     )->fetchAll();
 
-    $pendingTasks = count(array_filter($tasks, static fn(array $t): bool => ($t['status'] ?? '') === 'pending'));
+    $committees = array_values(array_filter($committees, fn($c)=>rbacCanAccessCommittee($c['id'])));
+    $members = array_values(array_filter($members, fn($m)=>rbacCanAccessMember($m['id'])));
+    $tasks = rbacFilterRows($tasks);
+    $pendingTasks = count(array_filter($tasks, static fn(array $t): bool => ($t['status'] ?? '') !== 'completed'));
     $completedTasks = count(array_filter($tasks, static fn(array $t): bool => ($t['status'] ?? '') === 'completed'));
 
     $committeesStr = '';
@@ -54,7 +58,7 @@ try {
             . count($mTasks) . ' total, ' . $mDone . " completed\n";
     }
 
-    $prompt = 'You are a report generator for SK Committee Management System in the Philippines.
+    $prompt = 'You are a report generator for SP Committee Management System in the Philippines.
 
 Data:
 - Committees: ' . count($committees) . '
@@ -93,13 +97,6 @@ Use formal Filipino-English style.';
             'details' => 'Empty report text',
         ], 502);
     }
-
-    // Persist metadata row (same contract as prior client POST)
-    $insert = $pdo->prepare(
-        "INSERT INTO reports (title, committee_id, report_type, date_from, date_to)
-         VALUES ('AI-Generated System Report', NULL, 'ai_summary', NULL, NULL)"
-    );
-    $insert->execute();
 
     aiReportResponse([
         'success' => true,

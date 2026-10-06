@@ -7,6 +7,7 @@ ob_start();
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/auth.php';
 require_once __DIR__ . '/../../config/rbac.php';
+require_once __DIR__ . '/../../domain/reporting.php';
 
 corsHeaders();
 ob_clean();
@@ -66,6 +67,11 @@ try {
         )->fetchAll();
     }
 
+    $source=workflowReportData($pdo,$committeeId);
+    $scores=workflowScores($source['members'],$source['tasks'],$source['attendance']);
+    foreach ($scores as &$score) $score['committee_id']=$committeeId;
+    unset($score);
+
     if (empty($scores)) {
         sessionResponse(['success' => false, 'message' => 'No performance data found'], 404);
     }
@@ -76,7 +82,7 @@ try {
     $analytics = [
         'total_members' => $total,
         'average_score' => $avgScore,
-        'top_performer' => 'N/A',
+        'top_performer' => $scores[0]['full_name'] ?? 'N/A',
         'generated_at' => date('Y-m-d H:i:s'),
         'members' => $scores,
     ];

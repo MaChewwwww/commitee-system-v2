@@ -15,7 +15,7 @@ function committeeSmtpConfig(): array {
         'user' => committeeEnv('COMMITTEE_SMTP_USER', ''),
         'password' => committeeEnv('COMMITTEE_SMTP_PASSWORD', ''),
         'from' => committeeEnv('COMMITTEE_SMTP_FROM', ''),
-        'from_name' => committeeEnv('COMMITTEE_SMTP_FROM_NAME', 'SK Committee System'),
+        'from_name' => committeeEnv('COMMITTEE_SMTP_FROM_NAME', 'SP Committee System'),
         'secure' => committeeEnv('COMMITTEE_SMTP_SECURE', 'tls'),
     ];
 }

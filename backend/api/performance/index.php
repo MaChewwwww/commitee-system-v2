@@ -7,6 +7,7 @@ ob_start();
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/auth.php';
 require_once __DIR__ . '/../../config/rbac.php';
+require_once __DIR__ . '/../../domain/reporting.php';
 
 corsHeaders();
 ob_clean();
@@ -115,41 +116,39 @@ try {
                 perfResponse(['success' => false, 'message' => 'Committee not found.'], 404);
             }
 
-            $attendance = perfRate($data['attendance_rate'] ?? 0, 'Attendance rate');
-            $taskCompletion = perfRate($data['task_completion_rate'] ?? 0, 'Task completion rate');
-            $score = perfRate($data['performance_score'] ?? 0, 'Performance score');
-
-            $period = null;
-            if (isset($data['period']) && is_string($data['period']) && trim($data['period']) !== '') {
-                $period = trim($data['period']);
-                if (mb_strlen($period) > 50) {
-                    perfResponse(['success' => false, 'message' => 'Period is too long.'], 400);
-                }
+            rbacAssertMemberAccess($memberId);
+            if ($committeeId !== null) {
+                $membership = $pdo->prepare('SELECT 1 FROM committee_members WHERE committee_id=:cid AND member_id=:mid');
+                $membership->execute(['cid'=>$committeeId,'mid'=>$memberId]);
+                if (!$membership->fetchColumn()) throw new DomainException('Attendance must reference a member of this committee.',409);
             }
-
+            $attendance = perfRate($data['attendance_rate'] ?? null, 'Attendance rate');
+            $period = $data['period'] ?? '';
+            if (!is_string($period) || !preg_match('/^\d{4}-\d{2}$/',$period)) throw new DomainException('Choose a reporting month (YYYY-MM).',400);
+            workflowDate($period.'-01','Reporting month');
+            if ($period > substr(workflowNow(),0,7)) throw new DomainException('Attendance cannot be recorded for a future month.',400);
             $pdo->beginTransaction();
-            $before = $pdo->query('SELECT id FROM performance')->fetchAll(PDO::FETCH_COLUMN);
-            $known = array_fill_keys($before, true);
-            $insert = $pdo->prepare(
-                'INSERT INTO performance (member_id, committee_id, attendance_rate, task_completion_rate, performance_score, period)
-                 VALUES (:member_id, :committee_id, :attendance_rate, :task_completion_rate, :performance_score, :period)'
-            );
-            $insert->execute([
-                'member_id' => $memberId,
-                'committee_id' => $committeeId,
-                'attendance_rate' => $attendance,
-                'task_completion_rate' => $taskCompletion,
-                'performance_score' => $score,
-                'period' => $period,
-            ]);
-            $rows = $pdo->query('SELECT ' . PERF_SELECT . ' FROM performance')->fetchAll();
-            $created = array_values(array_filter($rows, static fn(array $r): bool => !isset($known[$r['id']])));
-            if (count($created) !== 1) {
-                $pdo->rollBack();
-                perfResponse(['success' => false, 'message' => 'Performance record was not created safely.'], 500);
+            $lock=$pdo->prepare('SELECT id FROM members WHERE id=:id FOR UPDATE');
+            $lock->execute(['id'=>$memberId]);
+            $source=workflowReportData($pdo,$committeeId);
+            $source['attendance']=array_values(array_filter($source['attendance'],fn($r)=>$r['member_id']!==$memberId));
+            $source['attendance'][]=['id'=>'','member_id'=>$memberId,'attendance_rate'=>$attendance,'created_at'=>workflowNow()];
+            $scores=workflowScores([['id'=>$memberId,'full_name'=>'']],$source['tasks'],$source['attendance']);
+            $prior=$pdo->prepare('SELECT id FROM performance WHERE member_id=:mid AND committee_id <=> :cid AND period=:period ORDER BY created_at DESC,id DESC LIMIT 1');
+            $prior->execute(['mid'=>$memberId,'cid'=>$committeeId,'period'=>$period]);
+            $id=$prior->fetchColumn();
+            $values=['member_id'=>$memberId,'committee_id'=>$committeeId,'attendance_rate'=>$attendance,'task_completion_rate'=>$scores[0]['task_completion_rate'],'performance_score'=>$scores[0]['performance_score'],'period'=>$period];
+            if ($id) {
+                $values['id']=$id;
+                $query='UPDATE performance SET member_id=:member_id,committee_id=:committee_id,attendance_rate=:attendance_rate,task_completion_rate=:task_completion_rate,performance_score=:performance_score,period=:period,created_at=CURRENT_TIMESTAMP WHERE id=:id';
+            } else {
+                $id=$pdo->query('SELECT UUID()')->fetchColumn();
+                $values['id']=$id;
+                $query='INSERT INTO performance (id,member_id,committee_id,attendance_rate,task_completion_rate,performance_score,period) VALUES (:id,:member_id,:committee_id,:attendance_rate,:task_completion_rate,:performance_score,:period)';
             }
+            $pdo->prepare($query)->execute($values);
             $pdo->commit();
-            perfResponse(['success' => true, 'message' => 'Performance saved successfully.', 'data' => $created[0]], 201);
+            perfResponse(['success'=>true,'message'=>'Attendance saved. Scores are calculated from approved tasks.','data'=>perfRecord($pdo,$id)],201);
 
         case 'DELETE':
             requirePermission('performance.delete');
@@ -176,6 +175,9 @@ try {
             header('Allow: GET, POST, DELETE, OPTIONS');
             perfResponse(['success' => false, 'message' => 'Method not allowed.'], 405);
     }
+} catch (DomainException $e) {
+    if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
+    perfResponse(['success'=>false,'message'=>$e->getMessage()],$e->getCode() ?: 400);
 } catch (Throwable $e) {
     if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
         $pdo->rollBack();

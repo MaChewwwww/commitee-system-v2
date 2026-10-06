@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../config/ai.php';
 corsHeaders();
 ob_clean();
 requirePermission('ai.use');
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') { http_response_code(405); header('Allow: POST, OPTIONS'); echo json_encode(['success'=>false,'message'=>'Use POST for AI requests.']); exit; }
 
 function aiWlResponse(array $payload, int $status = 200): void {
     http_response_code($status);
@@ -26,9 +27,12 @@ try {
         'SELECT id, full_name, position, availability FROM members ORDER BY full_name ASC'
     )->fetchAll();
     $tasks = $pdo->query(
-        'SELECT id, member_id, status FROM tasks WHERE member_id IS NOT NULL'
+        'SELECT id, committee_id, member_id, status FROM tasks WHERE member_id IS NOT NULL'
     )->fetchAll();
 
+    $members = array_values(array_filter($members, fn($m)=>rbacCanAccessMember($m['id'])));
+    $tasks = rbacFilterRows($tasks);
+    $tasks = array_values(array_filter($tasks, fn($t)=>$t['status'] !== 'completed'));
     $taskCounts = [];
     foreach ($tasks as $task) {
         $mid = $task['member_id'];
@@ -58,7 +62,7 @@ try {
             $list
         ));
 
-    $prompt = "You are an AI workload distribution assistant for SK Committee System.
+    $prompt = "You are an AI workload distribution assistant for SP Committee System.
 
 OVERLOADED MEMBERS (more than 5 tasks):
 " . $fmt($overloaded) . "

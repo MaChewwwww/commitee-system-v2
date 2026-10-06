@@ -33,6 +33,8 @@ export const committees: Committee[] = [
     id: "committee-1",
     name: "Youth Development",
     type: "Standing",
+    issued_date: "2026-09-30",
+    issued_by: "SK Chairperson",
     purpose: "Support youth programs",
     status: "active",
     created_at: "2026-10-01",
@@ -55,6 +57,8 @@ export const tasks: Task[] = [
     status: "completed",
     due_date: "2026-10-01",
     updated_at: "2026-09-30",
+    completed_at: "2026-09-30 15:00:00",
+    approved_by: "SK Chairperson",
   },
 ]
 export const assignments: Assignment[] = [
@@ -113,6 +117,15 @@ export const resourceData = {
   tasks,
   assignments,
   jurisdictions,
+  penalties: [
+    {
+      id: "penalty-1",
+      violation: "Sample violation",
+      first_offense: "Warning",
+      second_offense: "₱500",
+      third_offense: "₱1,000",
+    },
+  ],
   performance,
   users,
   reports,

@@ -3,11 +3,12 @@ ob_start();
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/auth.php';
 require_once __DIR__ . '/../../config/rbac.php';
+require_once __DIR__ . '/../../domain/lifecycle.php';
 
 corsHeaders();
 ob_clean();
 
-const COMMITTEE_SELECT = 'id, name, type, purpose, mandate, qualification_requirements, status, created_at';
+const COMMITTEE_SELECT = 'id, name, type, issued_date, issued_by, establishing_reference, effective_until, purpose, mandate, qualification_requirements, status, created_at';
 const COMMITTEE_UUID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
 
 function committeeResponse(array $payload, int $status = 200): void {
@@ -52,9 +53,19 @@ function committeeText(array $data, string $field, int $maximumLength, bool $req
     return $value;
 }
 
-function validatedCommittee(array $data): array {
+function validatedCommittee(array $data, ?string $legacyType = null): array {
+    $effectiveUntil = workflowDate($data['effective_until'] ?? null, 'Effective until');
+    $issuedDate = committeeText($data, 'issued_date', 10);
+    if ($issuedDate !== null) {
+        $date = DateTimeImmutable::createFromFormat('!Y-m-d', $issuedDate);
+        if (!$date || $date->format('Y-m-d') !== $issuedDate || (int) $date->format('Y') < 1000) {
+            committeeResponse(['success' => false, 'message' => 'Date issued must be a valid date in YYYY-MM-DD format.'], 400);
+        }
+    }
+
+    if ($issuedDate && $effectiveUntil && $issuedDate > $effectiveUntil) throw new DomainException('Effective until must not precede the committee issuance date.',400);
     $type = $data['type'] ?? null;
-    if (!is_string($type) || !in_array($type, ['Standing', 'Ad Hoc', 'Advisory'], true)) {
+    if (!is_string($type) || (!in_array($type, ['Standing', 'Ad Hoc', 'Advisory'], true) && $type !== $legacyType)) {
         committeeResponse(['success' => false, 'message' => 'Committee Type must be Standing, Ad Hoc, or Advisory.'], 400);
     }
 
@@ -66,6 +77,10 @@ function validatedCommittee(array $data): array {
     return [
         'name' => committeeText($data, 'name', 255, true),
         'type' => $type,
+        'issued_date' => $issuedDate,
+        'issued_by' => committeeText($data, 'issued_by', 255),
+        'establishing_reference' => committeeText($data, 'establishing_reference', 1000),
+        'effective_until' => $effectiveUntil,
         'purpose' => committeeText($data, 'purpose', 65535),
         'mandate' => committeeText($data, 'mandate', 65535),
         'qualification_requirements' => committeeText($data, 'qualification_requirements', 65535),
@@ -136,8 +151,8 @@ try {
             $knownIds = array_fill_keys($before, true);
 
             $insert = $pdo->prepare(
-                'INSERT INTO committees (name, type, purpose, mandate, qualification_requirements, status) '
-                . 'VALUES (:name, :type, :purpose, :mandate, :qualification_requirements, :status)'
+                'INSERT INTO committees (name, type, issued_date, issued_by, establishing_reference, effective_until, purpose, mandate, qualification_requirements, status) '
+                . 'VALUES (:name, :type, :issued_date, :issued_by, :establishing_reference, :effective_until, :purpose, :mandate, :qualification_requirements, :status)'
             );
             $insert->execute($committee);
 
@@ -155,19 +170,23 @@ try {
             requirePermission('committees.update');
             $data = committeeInput();
             $id = committeeId($data);
-            $exists = $pdo->prepare('SELECT status FROM committees WHERE id = :id');
+            $exists = $pdo->prepare('SELECT status, type, issued_date, issued_by, establishing_reference, effective_until FROM committees WHERE id = :id');
             $exists->execute(['id' => $id]);
-            $existingStatus = $exists->fetchColumn();
-            if ($existingStatus === false) {
+            $existing = $exists->fetch();
+            if ($existing === false) {
                 committeeResponse(['success' => false, 'message' => 'Committee not found.'], 404);
             }
-            $committee = validatedCommittee($data + ['status' => $existingStatus]);
+            rbacAssertCommitteeAccess($id);
+            $committee = validatedCommittee($data + $existing, $existing['type']);
 
+            $pdo->beginTransaction();
+            workflowSetCommitteeEndDate($pdo,$id,$committee['effective_until']);
             $update = $pdo->prepare(
-                'UPDATE committees SET name = :name, type = :type, purpose = :purpose, mandate = :mandate, '
+                'UPDATE committees SET name = :name, type = :type, issued_date = :issued_date, issued_by = :issued_by, establishing_reference = :establishing_reference, effective_until = :effective_until, purpose = :purpose, mandate = :mandate, '
                 . 'qualification_requirements = :qualification_requirements, status = :status WHERE id = :id'
             );
             $update->execute($committee + ['id' => $id]);
+            $pdo->commit();
 
             $record = $pdo->prepare('SELECT ' . COMMITTEE_SELECT . ' FROM committees WHERE id = :id');
             $record->execute(['id' => $id]);
@@ -180,6 +199,7 @@ try {
         case 'DELETE':
             requirePermission('committees.delete');
             $id = committeeId(committeeInput());
+            rbacAssertCommitteeAccess($id);
 
             $exists = $pdo->prepare('SELECT id FROM committees WHERE id = :id');
             $exists->execute(['id' => $id]);
@@ -206,6 +226,8 @@ try {
             header('Allow: GET, POST, PUT, DELETE, OPTIONS');
             committeeResponse(['success' => false, 'message' => 'Method not allowed.'], 405);
     }
+} catch (DomainException $exception) {
+    committeeResponse(['success'=>false, 'message'=>$exception->getMessage()], (int)$exception->getCode() ?: 400);
 } catch (PDOException $exception) {
     if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
         $pdo->rollBack();

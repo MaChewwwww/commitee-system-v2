@@ -1,9 +1,9 @@
 import { n as e, r as t } from "./rolldown-runtime-B0aSnxlc.js";
 import { t as n } from "./react-B4u1yd7E.js";
 import { a as r, d as i, f as a, h as o, l as s, m as c, n as l, p as u, s as d } from "./api-DVPVP-g0.js";
-import { $ as f, At as p, C as m, Ct as h, Dt as g, Et as _, G as v, I as y, J as b, K as x, Mt as S, Nt as C, Ot as w, Pt as T, Q as ee, St as E, Tt as D, U as te, V as O, W as ne, X as k, Y as re, Z as ie, _t as A, at as ae, bt as j, ct as oe, dt as se, et as ce, f as le, ft as ue, gt as de, ht as M, it as fe, jt as pe, kt as me, lt as N, mt as he, nt as ge, ot as _e, p as ve, pt as P, q as F, rt as ye, st as be, t as xe, tt as Se, ut as I, vt as Ce, wt as we, xt as Te, yt as Ee } from "./hooks-CGjnItOC.js";
+import { $ as f, At as p, C as m, Ct as h, Dt as g, Et as _, Ft as v, G as y, H as b, J as x, K as S, L as C, Mt as w, Nt as T, Ot as ee, Pt as E, Q as D, St as te, Tt as O, W as k, X as A, Y as ne, Z as re, _t as ie, at as j, bt as ae, ct as oe, dt as M, et as se, f as ce, ft as le, gt as ue, ht as de, it as fe, jt as N, kt as pe, lt as me, mt as P, nt as he, ot as ge, p as _e, pt as ve, q as ye, rt as be, st as xe, t as Se, tt as Ce, ut as F, vt as I, wt as we, xt as Te, yt as Ee } from "./hooks-BlRndFBy.js";
 //#region node_modules/@tanstack/query-core/build/modern/mutationCache.js
-var De = class extends we {
+var De = class extends O {
 	#e;
 	#t;
 	#n;
@@ -11,7 +11,7 @@ var De = class extends we {
 		super(), this.config = e, this.#e = /* @__PURE__ */ new Set(), this.#t = /* @__PURE__ */ new Map(), this.#n = 0;
 	}
 	build(e, t, n) {
-		let r = new Ee({
+		let r = new ae({
 			client: e,
 			mutationCache: this,
 			mutationId: ++this.#n,
@@ -63,7 +63,7 @@ var De = class extends we {
 		return typeof t == "string" ? (this.#t.get(t)?.find((t) => t !== e && t.state.isPaused))?.continue() ?? Promise.resolve() : Promise.resolve();
 	}
 	clear() {
-		E.batch(() => {
+		h.batch(() => {
 			this.#e.forEach((e) => {
 				this.notify({
 					type: "removed",
@@ -80,13 +80,13 @@ var De = class extends we {
 			exact: !0,
 			...e
 		};
-		return this.getAll().find((e) => w(t, e));
+		return this.getAll().find((e) => pe(t, e));
 	}
 	findAll(e = {}) {
-		return this.getAll().filter((t) => w(e, t));
+		return this.getAll().filter((t) => pe(e, t));
 	}
 	notify(e) {
-		E.batch(() => {
+		h.batch(() => {
 			this.listeners.forEach((t) => {
 				t(e);
 			});
@@ -94,7 +94,7 @@ var De = class extends we {
 	}
 	resumePausedMutations() {
 		let e = this.getAll().filter((e) => e.state.isPaused);
-		return E.batch(() => Promise.all(e.map((e) => e.continue().catch(p))));
+		return h.batch(() => Promise.all(e.map((e) => e.continue().catch(N))));
 	}
 };
 function L(e) {
@@ -102,14 +102,14 @@ function L(e) {
 }
 //#endregion
 //#region node_modules/@tanstack/query-core/build/modern/queryCache.js
-var Oe = class extends we {
+var Oe = class extends O {
 	#e;
 	constructor(e = {}) {
 		super(), this.config = e, this.#e = /* @__PURE__ */ new Map();
 	}
 	build(e, t, n) {
-		let r = t.queryKey, i = t.queryHash ?? g(r, t), a = this.get(i);
-		return a || (a = new j({
+		let r = t.queryKey, i = t.queryHash ?? ee(r, t), a = this.get(i);
+		return a || (a = new Te({
 			client: e,
 			queryKey: r,
 			queryHash: i,
@@ -131,7 +131,7 @@ var Oe = class extends we {
 		}));
 	}
 	clear() {
-		E.batch(() => {
+		h.batch(() => {
 			this.getAll().forEach((e) => {
 				this.remove(e);
 			});
@@ -148,28 +148,28 @@ var Oe = class extends we {
 			exact: !0,
 			...e
 		};
-		return this.getAll().find((e) => me(t, e));
+		return this.getAll().find((e) => p(t, e));
 	}
 	findAll(e = {}) {
 		let t = this.getAll();
-		return Object.keys(e).length > 0 ? t.filter((t) => me(e, t)) : t;
+		return Object.keys(e).length > 0 ? t.filter((t) => p(e, t)) : t;
 	}
 	notify(e) {
-		E.batch(() => {
+		h.batch(() => {
 			this.listeners.forEach((t) => {
 				t(e);
 			});
 		});
 	}
 	onFocus() {
-		E.batch(() => {
+		h.batch(() => {
 			this.getAll().forEach((e) => {
 				e.onFocus();
 			});
 		});
 	}
 	onOnline() {
-		E.batch(() => {
+		h.batch(() => {
 			this.getAll().forEach((e) => {
 				e.onOnline();
 			});
@@ -188,9 +188,9 @@ var Oe = class extends we {
 		this.#e = e.queryCache || new Oe(), this.#t = e.mutationCache || new De(), this.#n = e.defaultOptions || {}, this.#r = /* @__PURE__ */ new Map(), this.#i = /* @__PURE__ */ new Map(), this.#a = 0;
 	}
 	mount() {
-		this.#a++, this.#a === 1 && (this.#o = h.subscribe(async (e) => {
+		this.#a++, this.#a === 1 && (this.#o = we.subscribe(async (e) => {
 			e && (await this.resumePausedMutations(), this.#e.onFocus());
-		}), this.#s = Te.subscribe(async (e) => {
+		}), this.#s = te.subscribe(async (e) => {
 			e && (await this.resumePausedMutations(), this.#e.onOnline());
 		}));
 	}
@@ -215,20 +215,20 @@ var Oe = class extends we {
 	}
 	ensureQueryData(e) {
 		let t = this.defaultQueryOptions(e), n = this.#e.build(this, t), r = n.state.data;
-		return r === void 0 ? this.fetchQuery(e) : (e.revalidateIfStale && n.isStaleByTime(S(t.staleTime, n)) && this.prefetchQuery(t), Promise.resolve(r));
+		return r === void 0 ? this.fetchQuery(e) : (e.revalidateIfStale && n.isStaleByTime(T(t.staleTime, n)) && this.prefetchQuery(t), Promise.resolve(r));
 	}
 	getQueriesData(e) {
 		return this.#e.findAll(e).map(({ queryKey: e, state: t }) => [e, t.data]);
 	}
 	setQueryData(e, t, n) {
-		let r = this.defaultQueryOptions({ queryKey: e }), i = this.#e.get(r.queryHash)?.state.data, a = D(t, i);
+		let r = this.defaultQueryOptions({ queryKey: e }), i = this.#e.get(r.queryHash)?.state.data, a = _(t, i);
 		if (a !== void 0) return this.#e.build(this, r).setData(a, {
 			...n,
 			manual: !0
 		});
 	}
 	setQueriesData(e, t, n) {
-		return E.batch(() => this.#e.findAll(e).map(({ queryKey: e }) => [e, this.setQueryData(e, t, n)]));
+		return h.batch(() => this.#e.findAll(e).map(({ queryKey: e }) => [e, this.setQueryData(e, t, n)]));
 	}
 	getQueryState(e) {
 		let t = this.defaultQueryOptions({ queryKey: e });
@@ -236,7 +236,7 @@ var Oe = class extends we {
 	}
 	removeQueries(e) {
 		let t = this.#e;
-		E.batch(() => {
+		h.batch(() => {
 			t.findAll(e).forEach((e) => {
 				t.remove(e);
 			});
@@ -244,7 +244,7 @@ var Oe = class extends we {
 	}
 	resetQueries(e, t) {
 		let n = this.#e;
-		return E.batch(() => {
+		return h.batch(() => {
 			let r = n.findAll(e), i = new Set(r);
 			return r.forEach((e) => {
 				e.reset();
@@ -258,11 +258,11 @@ var Oe = class extends we {
 		let n = {
 			revert: !0,
 			...t
-		}, r = E.batch(() => this.#e.findAll(e).map((e) => e.cancel(n)));
-		return Promise.all(r).then(p).catch(p);
+		}, r = h.batch(() => this.#e.findAll(e).map((e) => e.cancel(n)));
+		return Promise.all(r).then(N).catch(N);
 	}
 	invalidateQueries(e, t = {}) {
-		return E.batch(() => (this.#e.findAll(e).forEach((e) => {
+		return h.batch(() => (this.#e.findAll(e).forEach((e) => {
 			e.invalidate();
 		}), e?.refetchType === "none" ? Promise.resolve() : this.refetchQueries({
 			...e,
@@ -273,26 +273,26 @@ var Oe = class extends we {
 		let n = {
 			...t,
 			cancelRefetch: t.cancelRefetch ?? !0
-		}, r = E.batch(() => this.#e.findAll(e).filter((e) => !e.isDisabled() && !e.isStatic()).map((e) => {
+		}, r = h.batch(() => this.#e.findAll(e).filter((e) => !e.isDisabled() && !e.isStatic()).map((e) => {
 			let t = e.fetch(void 0, n);
-			return n.throwOnError || (t = t.catch(p)), e.state.fetchStatus === "paused" ? Promise.resolve() : t;
+			return n.throwOnError || (t = t.catch(N)), e.state.fetchStatus === "paused" ? Promise.resolve() : t;
 		}));
-		return Promise.all(r).then(p);
+		return Promise.all(r).then(N);
 	}
 	async query(e) {
 		let t = this.defaultQueryOptions(e);
 		t.retry === void 0 && (t.retry = !1);
-		let n = this.#e.build(this, t), r = n.isStaleByTime(S(t.staleTime, n)) ? await n.fetch(t) : n.state.data, i = t.select;
+		let n = this.#e.build(this, t), r = n.isStaleByTime(T(t.staleTime, n)) ? await n.fetch(t) : n.state.data, i = t.select;
 		return i ? i(r) : r;
 	}
 	fetchQuery(e) {
 		let t = this.defaultQueryOptions(e);
 		t.retry === void 0 && (t.retry = !1);
 		let n = this.#e.build(this, t);
-		return n.isStaleByTime(S(t.staleTime, n)) ? n.fetch(t) : Promise.resolve(n.state.data);
+		return n.isStaleByTime(T(t.staleTime, n)) ? n.fetch(t) : Promise.resolve(n.state.data);
 	}
 	prefetchQuery(e) {
-		return this.fetchQuery(e).then(p).catch(p);
+		return this.fetchQuery(e).then(N).catch(N);
 	}
 	infiniteQuery(e) {
 		return e._type = "infinite", this.query(e);
@@ -301,13 +301,13 @@ var Oe = class extends we {
 		return e._type = "infinite", this.fetchQuery(e);
 	}
 	prefetchInfiniteQuery(e) {
-		return this.fetchInfiniteQuery(e).then(p).catch(p);
+		return this.fetchInfiniteQuery(e).then(N).catch(N);
 	}
 	ensureInfiniteQueryData(e) {
 		return e._type = "infinite", this.ensureQueryData(e);
 	}
 	resumePausedMutations() {
-		return Te.isOnline() ? this.#t.resumePausedMutations() : Promise.resolve();
+		return te.isOnline() ? this.#t.resumePausedMutations() : Promise.resolve();
 	}
 	getQueryCache() {
 		return this.#e;
@@ -322,7 +322,7 @@ var Oe = class extends we {
 		this.#n = e;
 	}
 	setQueryDefaults(e, t) {
-		this.#r.set(_(e), {
+		this.#r.set(g(e), {
 			queryKey: e,
 			defaultOptions: t
 		});
@@ -330,11 +330,11 @@ var Oe = class extends we {
 	getQueryDefaults(e) {
 		let t = [...this.#r.values()], n = {};
 		return t.forEach((t) => {
-			pe(e, t.queryKey) && Object.assign(n, t.defaultOptions);
+			w(e, t.queryKey) && Object.assign(n, t.defaultOptions);
 		}), n;
 	}
 	setMutationDefaults(e, t) {
-		this.#i.set(_(e), {
+		this.#i.set(g(e), {
 			mutationKey: e,
 			defaultOptions: t
 		});
@@ -342,7 +342,7 @@ var Oe = class extends we {
 	getMutationDefaults(e) {
 		let t = [...this.#i.values()], n = {};
 		return t.forEach((t) => {
-			pe(e, t.mutationKey) && Object.assign(n, t.defaultOptions);
+			w(e, t.mutationKey) && Object.assign(n, t.defaultOptions);
 		}), n;
 	}
 	defaultQueryOptions(e) {
@@ -353,7 +353,7 @@ var Oe = class extends we {
 			...e,
 			_defaulted: !0
 		};
-		return t.queryHash ||= g(t.queryKey, t), t.refetchOnReconnect === void 0 && (t.refetchOnReconnect = t.networkMode !== "always"), t.throwOnError === void 0 && (t.throwOnError = !!t.suspense), !t.networkMode && t.persister && (t.networkMode = "offlineFirst"), t.queryFn === C && (t.enabled = !1), t;
+		return t.queryHash ||= ee(t.queryKey, t), t.refetchOnReconnect === void 0 && (t.refetchOnReconnect = t.networkMode !== "always"), t.throwOnError === void 0 && (t.throwOnError = !!t.suspense), !t.networkMode && t.persister && (t.networkMode = "offlineFirst"), t.queryFn === E && (t.enabled = !1), t;
 	}
 	defaultMutationOptions(e) {
 		return e?._defaulted ? e : {
@@ -392,7 +392,7 @@ var Le = typeof Pe == "function" ? Ie : Ne, z = o(), Re = Object.defineProperty,
 }), ze = "rovingFocusGroup.onEntryFocus", Be = {
 	bubbles: !1,
 	cancelable: !0
-}, V = "RovingFocusGroup", [Ve, He, Ue] = he(V), [We, Ge] = M(V, [Ue]), [Ke, qe] = We(V), Je = /* @__PURE__ */ R.forwardRef(/* @__PURE__ */ B(function(e, t) {
+}, V = "RovingFocusGroup", [Ve, He, Ue] = de(V), [We, Ge] = ue(V, [Ue]), [Ke, qe] = We(V), Je = /* @__PURE__ */ R.forwardRef(/* @__PURE__ */ B(function(e, t) {
 	return /* @__PURE__ */ (0, z.jsx)(Ve.Provider, {
 		scope: e.__scopeRovingFocusGroup,
 		children: /* @__PURE__ */ (0, z.jsx)(Ve.Slot, {
@@ -404,12 +404,12 @@ var Le = typeof Pe == "function" ? Ie : Ne, z = o(), Re = Object.defineProperty,
 		})
 	});
 }, "RovingFocusGroup")), Ye = /* @__PURE__ */ R.forwardRef(/* @__PURE__ */ B(function(e, t) {
-	let { __scopeRovingFocusGroup: n, orientation: r, loop: i = !1, dir: a, currentTabStopId: o, defaultCurrentTabStopId: s, onCurrentTabStopIdChange: c, onEntryFocus: l, preventScrollOnEntryFocus: d = !1, ...f } = e, p = R.useRef(null), m = u(t, p), h = oe(a), [g, _] = se({
+	let { __scopeRovingFocusGroup: n, orientation: r, loop: i = !1, dir: a, currentTabStopId: o, defaultCurrentTabStopId: s, onCurrentTabStopIdChange: c, onEntryFocus: l, preventScrollOnEntryFocus: d = !1, ...f } = e, p = R.useRef(null), m = u(t, p), h = me(a), [g, _] = le({
 		prop: o,
 		defaultProp: s ?? null,
 		onChange: c,
 		caller: V
-	}), [v, y] = R.useState(!1), b = be(l), x = He(n), S = R.useRef(!1), [C, w] = R.useState(0);
+	}), [v, y] = R.useState(!1), b = oe(l), x = He(n), S = R.useRef(!1), [C, w] = R.useState(0);
 	return R.useEffect(() => {
 		let e = p.current;
 		if (e) return e.addEventListener(ze, b), () => e.removeEventListener(ze, b);
@@ -423,7 +423,7 @@ var Le = typeof Pe == "function" ? Ie : Ne, z = o(), Re = Object.defineProperty,
 		onItemShiftTab: R.useCallback(() => y(!0), []),
 		onFocusableItemAdd: R.useCallback(() => w((e) => e + 1), []),
 		onFocusableItemRemove: R.useCallback(() => w((e) => e - 1), []),
-		children: /* @__PURE__ */ (0, z.jsx)(A.div, {
+		children: /* @__PURE__ */ (0, z.jsx)(I.div, {
 			tabIndex: v || C === 0 ? -1 : 0,
 			"data-orientation": r,
 			...f,
@@ -454,8 +454,8 @@ var Le = typeof Pe == "function" ? Ie : Ne, z = o(), Re = Object.defineProperty,
 		})
 	});
 }, "RovingFocusGroupImpl")), Xe = "RovingFocusGroupItem", Ze = /* @__PURE__ */ R.forwardRef(/* @__PURE__ */ B(function(e, t) {
-	let { __scopeRovingFocusGroup: n, focusable: r = !0, active: i = !1, tabStopId: a, children: o, ...s } = e, c = N(), l = a || c, u = qe(Xe, n), d = u.currentTabStopId === l, f = He(n), { onFocusableItemAdd: p, onFocusableItemRemove: m, currentTabStopId: h } = u, g = Le();
-	return ue(() => {
+	let { __scopeRovingFocusGroup: n, focusable: r = !0, active: i = !1, tabStopId: a, children: o, ...s } = e, c = F(), l = a || c, u = qe(Xe, n), d = u.currentTabStopId === l, f = He(n), { onFocusableItemAdd: p, onFocusableItemRemove: m, currentTabStopId: h } = u, g = Le();
+	return ve(() => {
 		if (g && r) return p(), () => m();
 	}, [
 		g,
@@ -474,7 +474,7 @@ var Le = typeof Pe == "function" ? Ie : Ne, z = o(), Re = Object.defineProperty,
 		id: l,
 		focusable: r,
 		active: i,
-		children: /* @__PURE__ */ (0, z.jsx)(A.span, {
+		children: /* @__PURE__ */ (0, z.jsx)(I.span, {
 			tabIndex: d ? 0 : -1,
 			"data-orientation": u.orientation,
 			...s,
@@ -550,12 +550,12 @@ var rt = Je, it = Ze, at = Object.defineProperty, H = (e, t) => at(e, "name", {
 	"End"
 ], lt = [...st, ...ct];
 [...ot], [...ot];
-var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
+var U = "Menu", [ut, dt, ft] = de(U), [W, pt] = ue(U, [
 	ft,
-	F,
+	x,
 	Ge
-]), mt = F(), ht = Ge(), [gt, G] = W(U), [_t, vt] = W(U), yt = /* @__PURE__ */ H((e) => {
-	let { __scopeMenu: t, open: n = !1, children: r, dir: i, onOpenChange: a, modal: o = !0 } = e, s = mt(t), [c, l] = R.useState(null), u = R.useRef(!1), d = be(a), f = oe(i);
+]), mt = x(), ht = Ge(), [gt, G] = W(U), [_t, vt] = W(U), yt = /* @__PURE__ */ H((e) => {
+	let { __scopeMenu: t, open: n = !1, children: r, dir: i, onOpenChange: a, modal: o = !0 } = e, s = mt(t), [c, l] = R.useState(null), u = R.useRef(!1), d = oe(a), f = me(i);
 	return R.useEffect(() => {
 		let e = /* @__PURE__ */ H(() => {
 			u.current = !0, document.addEventListener("pointerdown", t, {
@@ -573,7 +573,7 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 		if (!n) return;
 		let e = /* @__PURE__ */ H(() => d(!1), "handleBlur");
 		return window.addEventListener("blur", e), () => window.removeEventListener("blur", e);
-	}, [n, d]), /* @__PURE__ */ (0, z.jsx)(x, {
+	}, [n, d]), /* @__PURE__ */ (0, z.jsx)(ye, {
 		...s,
 		children: /* @__PURE__ */ (0, z.jsx)(gt, {
 			scope: t,
@@ -593,7 +593,7 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 	});
 }, "Menu"), bt = /* @__PURE__ */ R.forwardRef(/* @__PURE__ */ H(function(e, t) {
 	let { __scopeMenu: n, ...r } = e, i = mt(n);
-	return /* @__PURE__ */ (0, z.jsx)(te, {
+	return /* @__PURE__ */ (0, z.jsx)(k, {
 		...i,
 		...r,
 		ref: t
@@ -603,9 +603,9 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 	return /* @__PURE__ */ (0, z.jsx)(St, {
 		scope: t,
 		forceMount: n,
-		children: /* @__PURE__ */ (0, z.jsx)(I, {
+		children: /* @__PURE__ */ (0, z.jsx)(M, {
 			present: n || a.open,
-			children: /* @__PURE__ */ (0, z.jsx)(fe, {
+			children: /* @__PURE__ */ (0, z.jsx)(j, {
 				asChild: !0,
 				container: i,
 				children: r
@@ -616,7 +616,7 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 	let n = Ct(K, e.__scopeMenu), { forceMount: r = n.forceMount, ...i } = e, a = G(K, e.__scopeMenu), o = vt(K, e.__scopeMenu);
 	return /* @__PURE__ */ (0, z.jsx)(ut.Provider, {
 		scope: e.__scopeMenu,
-		children: /* @__PURE__ */ (0, z.jsx)(I, {
+		children: /* @__PURE__ */ (0, z.jsx)(M, {
 			present: r || a.open,
 			children: /* @__PURE__ */ (0, z.jsx)(ut.Slot, {
 				scope: e.__scopeMenu,
@@ -634,7 +634,7 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 	let n = G(K, e.__scopeMenu), r = R.useRef(null), i = u(t, r);
 	return R.useEffect(() => {
 		let e = r.current;
-		if (e) return Se(e);
+		if (e) return he(e);
 	}, []), /* @__PURE__ */ (0, z.jsx)(jt, {
 		...e,
 		ref: i,
@@ -655,17 +655,17 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 		onDismiss: () => n.onOpenChange(!1)
 	});
 }, "MenuRootContentNonModal")), At = i("MenuContent.ScrollLock"), jt = /* @__PURE__ */ R.forwardRef(/* @__PURE__ */ H(function(e, t) {
-	let { __scopeMenu: n, loop: r = !1, trapFocus: i, onOpenAutoFocus: a, onCloseAutoFocus: o, disableOutsidePointerEvents: s, onEntryFocus: c, onEscapeKeyDown: l, onPointerDownOutside: d, onFocusOutside: f, onInteractOutside: p, onDismiss: m, disableOutsideScroll: h, ...g } = e, _ = G(K, n), y = vt(K, n), b = mt(n), x = ht(n), S = dt(n), [C, w] = R.useState(null), T = R.useRef(null), ee = u(t, T, _.onContentChange), E = R.useRef(0), D = R.useRef(""), te = R.useRef(0), O = R.useRef(null), ne = R.useRef("right"), k = R.useRef(0), re = h ? ge : R.Fragment, ie = h ? {
+	let { __scopeMenu: n, loop: r = !1, trapFocus: i, onOpenAutoFocus: a, onCloseAutoFocus: o, disableOutsidePointerEvents: s, onEntryFocus: c, onEscapeKeyDown: l, onPointerDownOutside: d, onFocusOutside: f, onInteractOutside: p, onDismiss: m, disableOutsideScroll: h, ...g } = e, _ = G(K, n), v = vt(K, n), y = mt(n), b = ht(n), x = dt(n), [C, w] = R.useState(null), T = R.useRef(null), ee = u(t, T, _.onContentChange), E = R.useRef(0), D = R.useRef(""), te = R.useRef(0), O = R.useRef(null), k = R.useRef("right"), A = R.useRef(0), ne = h ? be : R.Fragment, re = h ? {
 		as: At,
 		allowPinchZoom: !0
-	} : void 0, A = /* @__PURE__ */ H((e) => {
-		let t = D.current + e, n = S().filter((e) => !e.disabled), r = document.activeElement, i = n.find((e) => e.ref.current === r)?.textValue, a = Yt(n.map((e) => e.textValue), t, i), o = n.find((e) => e.textValue === a)?.ref.current;
+	} : void 0, ie = /* @__PURE__ */ H((e) => {
+		let t = D.current + e, n = x().filter((e) => !e.disabled), r = document.activeElement, i = n.find((e) => e.ref.current === r)?.textValue, a = Yt(n.map((e) => e.textValue), t, i), o = n.find((e) => e.textValue === a)?.ref.current;
 		(/* @__PURE__ */ H((function e(t) {
 			D.current = t, window.clearTimeout(E.current), t !== "" && (E.current = window.setTimeout(() => e(""), 1e3));
 		}), "updateSearch"))(t), o && setTimeout(() => o.focus());
 	}, "handleTypeaheadSearch");
-	R.useEffect(() => () => window.clearTimeout(E.current), []), ye();
-	let j = R.useCallback((e) => ne.current === O.current?.side && Zt(e, O.current?.area), []);
+	R.useEffect(() => () => window.clearTimeout(E.current), []), fe();
+	let j = R.useCallback((e) => k.current === O.current?.side && Zt(e, O.current?.area), []);
 	return /* @__PURE__ */ (0, z.jsx)(Tt, {
 		scope: n,
 		searchRef: D,
@@ -682,16 +682,16 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 		onPointerGraceIntentChange: R.useCallback((e) => {
 			O.current = e;
 		}, []),
-		children: /* @__PURE__ */ (0, z.jsx)(re, {
-			...ie,
-			children: /* @__PURE__ */ (0, z.jsx)(ae, {
+		children: /* @__PURE__ */ (0, z.jsx)(ne, {
+			...re,
+			children: /* @__PURE__ */ (0, z.jsx)(ge, {
 				asChild: !0,
 				trapped: i,
 				onMountAutoFocus: P(a, (e) => {
 					e.preventDefault(), T.current?.focus({ preventScroll: !0 });
 				}),
 				onUnmountAutoFocus: o,
-				children: /* @__PURE__ */ (0, z.jsx)(_e, {
+				children: /* @__PURE__ */ (0, z.jsx)(xe, {
 					asChild: !0,
 					disableOutsidePointerEvents: s,
 					onEscapeKeyDown: l,
@@ -701,23 +701,23 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 					onDismiss: m,
 					children: /* @__PURE__ */ (0, z.jsx)(rt, {
 						asChild: !0,
-						...x,
-						dir: y.dir,
+						...b,
+						dir: v.dir,
 						orientation: "vertical",
 						loop: r,
 						currentTabStopId: C,
 						onCurrentTabStopIdChange: w,
 						onEntryFocus: P(c, (e) => {
-							y.isUsingKeyboardRef.current || e.preventDefault();
+							v.isUsingKeyboardRef.current || e.preventDefault();
 						}),
 						preventScrollOnEntryFocus: !0,
-						children: /* @__PURE__ */ (0, z.jsx)(v, {
+						children: /* @__PURE__ */ (0, z.jsx)(S, {
 							role: "menu",
 							"aria-orientation": "vertical",
 							"data-state": Wt(_.open),
 							"data-radix-menu-content": "",
-							dir: y.dir,
-							...b,
+							dir: v.dir,
+							...y,
 							...g,
 							ref: ee,
 							style: {
@@ -726,21 +726,21 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 							},
 							onKeyDown: P(g.onKeyDown, (e) => {
 								let t = e.target.closest("[data-radix-menu-content]") === e.currentTarget, n = e.ctrlKey || e.altKey || e.metaKey, r = e.key.length === 1;
-								t && (e.key === "Tab" && e.preventDefault(), !n && r && A(e.key));
+								t && (e.key === "Tab" && e.preventDefault(), !n && r && ie(e.key));
 								let i = T.current;
 								if (e.target !== i || !lt.includes(e.key)) return;
 								e.preventDefault();
-								let a = S().filter((e) => !e.disabled).map((e) => e.ref.current);
+								let a = x().filter((e) => !e.disabled).map((e) => e.ref.current);
 								ct.includes(e.key) && a.reverse(), qt(a);
 							}),
 							onBlur: P(e.onBlur, (e) => {
 								e.currentTarget.contains(e.target) || (window.clearTimeout(E.current), D.current = "");
 							}),
 							onPointerMove: P(e.onPointerMove, q((e) => {
-								let t = e.target, n = k.current !== e.clientX;
+								let t = e.target, n = A.current !== e.clientX;
 								if (e.currentTarget.contains(t) && n) {
-									let t = e.clientX > k.current ? "right" : "left";
-									ne.current = t, k.current = e.clientX;
+									let t = e.clientX > A.current ? "right" : "left";
+									k.current = t, A.current = e.clientX;
 								}
 							}))
 						})
@@ -751,7 +751,7 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 	});
 }, "MenuContentImpl")), Mt = /* @__PURE__ */ R.forwardRef(/* @__PURE__ */ H(function(e, t) {
 	let { __scopeMenu: n, ...r } = e;
-	return /* @__PURE__ */ (0, z.jsx)(A.div, {
+	return /* @__PURE__ */ (0, z.jsx)(I.div, {
 		...r,
 		ref: t
 	});
@@ -763,7 +763,7 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 				bubbles: !0,
 				cancelable: !0
 			});
-			e.addEventListener(Pt, (e) => r?.(e), { once: !0 }), Ce(e, t), t.defaultPrevented ? l.current = !1 : o.onClose();
+			e.addEventListener(Pt, (e) => r?.(e), { once: !0 }), Ee(e, t), t.defaultPrevented ? l.current = !1 : o.onClose();
 		}
 	}, "handleSelect");
 	return /* @__PURE__ */ (0, z.jsx)(It, {
@@ -794,7 +794,7 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 			asChild: !0,
 			...s,
 			focusable: !r,
-			children: /* @__PURE__ */ (0, z.jsx)(A.div, {
+			children: /* @__PURE__ */ (0, z.jsx)(I.div, {
 				role: "menuitem",
 				"data-highlighted": d ? "" : void 0,
 				"aria-disabled": r || void 0,
@@ -815,7 +815,7 @@ var U = "Menu", [ut, dt, ft] = he(U), [W, pt] = M(U, [
 	onValueChange: /* @__PURE__ */ H(() => {}, "onValueChange")
 }), [zt, Bt] = W("MenuItemIndicator", { checked: !1 }), Vt = /* @__PURE__ */ R.forwardRef(/* @__PURE__ */ H(function(e, t) {
 	let { __scopeMenu: n, ...r } = e;
-	return /* @__PURE__ */ (0, z.jsx)(A.div, {
+	return /* @__PURE__ */ (0, z.jsx)(I.div, {
 		role: "separator",
 		"aria-orientation": "horizontal",
 		...r,
@@ -873,8 +873,8 @@ H(q, "whenMouse");
 var Qt = yt, $t = bt, en = wt, tn = Dt, nn = Mt, rn = Ft, an = Vt, on = Object.defineProperty, J = (e, t) => on(e, "name", {
 	value: t,
 	configurable: !0
-}), sn = "DropdownMenu", [cn, ln] = M(sn, [pt]), Y = pt(), [un, dn] = cn(sn), fn = /* @__PURE__ */ J((e) => {
-	let { __scopeDropdownMenu: t, children: n, dir: r, open: i, defaultOpen: a, onOpenChange: o, modal: s = !0 } = e, c = Y(t), l = R.useRef(null), [u, d] = se({
+}), sn = "DropdownMenu", [cn, ln] = ue(sn, [pt]), Y = pt(), [un, dn] = cn(sn), fn = /* @__PURE__ */ J((e) => {
+	let { __scopeDropdownMenu: t, children: n, dir: r, open: i, defaultOpen: a, onOpenChange: o, modal: s = !0 } = e, c = Y(t), l = R.useRef(null), [u, d] = le({
 		prop: i,
 		defaultProp: a ?? !1,
 		onChange: o,
@@ -882,9 +882,9 @@ var Qt = yt, $t = bt, en = wt, tn = Dt, nn = Mt, rn = Ft, an = Vt, on = Object.d
 	});
 	return /* @__PURE__ */ (0, z.jsx)(un, {
 		scope: t,
-		triggerId: N(),
+		triggerId: F(),
 		triggerRef: l,
-		contentId: N(),
+		contentId: F(),
 		open: u,
 		onOpenChange: d,
 		onOpenToggle: R.useCallback(() => d((e) => !e), [d]),
@@ -903,7 +903,7 @@ var Qt = yt, $t = bt, en = wt, tn = Dt, nn = Mt, rn = Ft, an = Vt, on = Object.d
 	return /* @__PURE__ */ (0, z.jsx)($t, {
 		asChild: !0,
 		...o,
-		children: /* @__PURE__ */ (0, z.jsx)(A.button, {
+		children: /* @__PURE__ */ (0, z.jsx)(I.button, {
 			type: "button",
 			id: a.triggerId,
 			"aria-haspopup": "menu",
@@ -985,7 +985,7 @@ var Qt = yt, $t = bt, en = wt, tn = Dt, nn = Mt, rn = Ft, an = Vt, on = Object.d
 		"aria-orientation": a === "vertical" ? a : void 0,
 		role: "separator"
 	};
-	return /* @__PURE__ */ (0, z.jsx)(A.div, {
+	return /* @__PURE__ */ (0, z.jsx)(I.div, {
 		"data-orientation": a,
 		...o,
 		...i,
@@ -999,7 +999,7 @@ kn(Nn, "isValidOrientation");
 var Pn = Mn, Fn = Object.defineProperty, X = (e, t) => Fn(e, "name", {
 	value: t,
 	configurable: !0
-}), [In, Ln] = M("Tooltip", [F]), Z = F(), Rn = "TooltipProvider", zn = 700, Bn = "tooltip.open", [Vn, Hn] = In(Rn), Un = /* @__PURE__ */ X((e) => {
+}), [In, Ln] = ue("Tooltip", [x]), Z = x(), Rn = "TooltipProvider", zn = 700, Bn = "tooltip.open", [Vn, Hn] = In(Rn), Un = /* @__PURE__ */ X((e) => {
 	let { __scopeTooltip: t, delayDuration: n = zn, skipDelayDuration: r = 300, disableHoverableContent: i = !1, children: a } = e, o = R.useRef(!0), s = R.useRef(!1), c = R.useRef(0);
 	return R.useEffect(() => {
 		let e = c.current;
@@ -1022,18 +1022,18 @@ var Pn = Mn, Fn = Object.defineProperty, X = (e, t) => Fn(e, "name", {
 		children: a
 	});
 }, "TooltipProvider"), Wn = "Tooltip", [Gn, Q] = In(Wn), Kn = /* @__PURE__ */ X((e) => {
-	let { __scopeTooltip: t, children: n, open: r, defaultOpen: i, onOpenChange: a, disableHoverableContent: o, delayDuration: s } = e, c = Hn(Wn, e.__scopeTooltip), l = Z(t), [u, d] = R.useState(null), [f, p] = R.useState(void 0), m = N(), h = R.useRef(0), g = o ?? c.disableHoverableContent, _ = s ?? c.delayDuration, v = R.useRef(!1), [y, b] = se({
+	let { __scopeTooltip: t, children: n, open: r, defaultOpen: i, onOpenChange: a, disableHoverableContent: o, delayDuration: s } = e, c = Hn(Wn, e.__scopeTooltip), l = Z(t), [u, d] = R.useState(null), [f, p] = R.useState(void 0), m = F(), h = R.useRef(0), g = o ?? c.disableHoverableContent, _ = s ?? c.delayDuration, v = R.useRef(!1), [y, b] = le({
 		prop: r,
 		defaultProp: i ?? !1,
 		onChange: /* @__PURE__ */ X((e) => {
 			e ? (c.onOpen(), document.dispatchEvent(new CustomEvent(Bn))) : c.onClose(), a?.(e);
 		}, "onChange"),
 		caller: Wn
-	}), S = R.useMemo(() => y ? v.current ? "delayed-open" : "instant-open" : "closed", [y]), C = R.useCallback(() => {
+	}), x = R.useMemo(() => y ? v.current ? "delayed-open" : "instant-open" : "closed", [y]), S = R.useCallback(() => {
 		window.clearTimeout(h.current), h.current = 0, v.current = !1, b(!0);
-	}, [b]), w = R.useCallback(() => {
+	}, [b]), C = R.useCallback(() => {
 		window.clearTimeout(h.current), h.current = 0, b(!1);
-	}, [b]), T = R.useCallback(() => {
+	}, [b]), w = R.useCallback(() => {
 		window.clearTimeout(h.current), h.current = window.setTimeout(() => {
 			v.current = !0, b(!0), h.current = 0;
 		}, _);
@@ -1041,39 +1041,39 @@ var Pn = Mn, Fn = Object.defineProperty, X = (e, t) => Fn(e, "name", {
 	R.useEffect(() => () => {
 		h.current &&= (window.clearTimeout(h.current), 0);
 	}, []);
-	let ee = f ?? m;
-	return /* @__PURE__ */ (0, z.jsx)(x, {
+	let T = f ?? m;
+	return /* @__PURE__ */ (0, z.jsx)(ye, {
 		...l,
 		children: /* @__PURE__ */ (0, z.jsx)(Gn, {
 			scope: t,
-			contentId: ee,
+			contentId: T,
 			setContentId: p,
 			open: y,
-			stateAttribute: S,
+			stateAttribute: x,
 			trigger: u,
 			onTriggerChange: d,
 			onTriggerEnter: R.useCallback(() => {
-				c.isOpenDelayedRef.current ? T() : C();
+				c.isOpenDelayedRef.current ? w() : S();
 			}, [
 				c.isOpenDelayedRef,
-				T,
-				C
+				w,
+				S
 			]),
 			onTriggerLeave: R.useCallback(() => {
-				g ? w() : (window.clearTimeout(h.current), h.current = 0);
-			}, [w, g]),
-			onOpen: C,
-			onClose: w,
+				g ? C() : (window.clearTimeout(h.current), h.current = 0);
+			}, [C, g]),
+			onOpen: S,
+			onClose: C,
 			disableHoverableContent: g,
 			children: n
 		})
 	});
 }, "Tooltip"), qn = "TooltipTrigger", Jn = /* @__PURE__ */ R.forwardRef(/* @__PURE__ */ X(function(e, t) {
 	let { __scopeTooltip: n, ...r } = e, i = Q(qn, n), a = Hn(qn, n), o = Z(n), s = R.useRef(null), c = u(t, s, i.onTriggerChange), l = R.useRef(!1), d = R.useRef(!1), f = R.useCallback(() => l.current = !1, []);
-	return R.useEffect(() => () => document.removeEventListener("pointerup", f), [f]), /* @__PURE__ */ (0, z.jsx)(te, {
+	return R.useEffect(() => () => document.removeEventListener("pointerup", f), [f]), /* @__PURE__ */ (0, z.jsx)(k, {
 		asChild: !0,
 		...o,
-		children: /* @__PURE__ */ (0, z.jsx)(A.button, {
+		children: /* @__PURE__ */ (0, z.jsx)(I.button, {
 			"aria-describedby": i.open ? i.contentId : void 0,
 			"data-state": i.stateAttribute,
 			...r,
@@ -1099,9 +1099,9 @@ var Pn = Mn, Fn = Object.defineProperty, X = (e, t) => Fn(e, "name", {
 	return /* @__PURE__ */ (0, z.jsx)(Xn, {
 		scope: t,
 		forceMount: n,
-		children: /* @__PURE__ */ (0, z.jsx)(I, {
+		children: /* @__PURE__ */ (0, z.jsx)(M, {
 			present: n || a.open,
-			children: /* @__PURE__ */ (0, z.jsx)(fe, {
+			children: /* @__PURE__ */ (0, z.jsx)(j, {
 				asChild: !0,
 				container: i,
 				children: r
@@ -1110,7 +1110,7 @@ var Pn = Mn, Fn = Object.defineProperty, X = (e, t) => Fn(e, "name", {
 	});
 }, "TooltipPortal"), $ = "TooltipContent", $n = /* @__PURE__ */ R.forwardRef(/* @__PURE__ */ X(function(e, t) {
 	let n = Zn($, e.__scopeTooltip), { forceMount: r = n.forceMount, side: i = "top", ...a } = e, o = Q($, e.__scopeTooltip);
-	return /* @__PURE__ */ (0, z.jsx)(I, {
+	return /* @__PURE__ */ (0, z.jsx)(M, {
 		present: r || o.open,
 		children: o.disableHoverableContent ? /* @__PURE__ */ (0, z.jsx)(nr, {
 			side: i,
@@ -1176,16 +1176,16 @@ var Pn = Mn, Fn = Object.defineProperty, X = (e, t) => Fn(e, "name", {
 		}
 	}, [l.trigger, d]);
 	let { setContentId: f } = l;
-	return ue(() => (f(a), () => {
+	return ve(() => (f(a), () => {
 		f(void 0);
-	}), [a, f]), /* @__PURE__ */ (0, z.jsx)(_e, {
+	}), [a, f]), /* @__PURE__ */ (0, z.jsx)(xe, {
 		asChild: !0,
 		disableOutsidePointerEvents: !1,
 		onEscapeKeyDown: o,
 		onPointerDownOutside: s,
 		onFocusOutside: (e) => e.preventDefault(),
 		onDismiss: d,
-		children: /* @__PURE__ */ (0, z.jsxs)(v, {
+		children: /* @__PURE__ */ (0, z.jsxs)(S, {
 			"data-state": l.stateAttribute,
 			role: i ? void 0 : "tooltip",
 			id: i ? void 0 : l.contentId,
@@ -1200,7 +1200,7 @@ var Pn = Mn, Fn = Object.defineProperty, X = (e, t) => Fn(e, "name", {
 				"--radix-tooltip-trigger-width": "var(--radix-popper-anchor-width)",
 				"--radix-tooltip-trigger-height": "var(--radix-popper-anchor-height)"
 			},
-			children: [/* @__PURE__ */ (0, z.jsx)(tr, { children: r }), i ? /* @__PURE__ */ (0, z.jsx)(de, {
+			children: [/* @__PURE__ */ (0, z.jsx)(tr, { children: r }), i ? /* @__PURE__ */ (0, z.jsx)(ie, {
 				id: l.contentId,
 				role: "tooltip",
 				children: i
@@ -1209,7 +1209,7 @@ var Pn = Mn, Fn = Object.defineProperty, X = (e, t) => Fn(e, "name", {
 	});
 }, "TooltipContentImpl")), rr = /* @__PURE__ */ R.forwardRef(/* @__PURE__ */ X(function(e, t) {
 	let { __scopeTooltip: n, ...r } = e, i = Z(n);
-	return /* @__PURE__ */ (0, z.jsx)(ne, {
+	return /* @__PURE__ */ (0, z.jsx)(y, {
 		...i,
 		...r,
 		ref: t
@@ -1713,33 +1713,33 @@ var qr = s(Kr);
 //#endregion
 //#region frontend/components/ui/sheet.tsx
 function Jr({ ...e }) {
-	return /* @__PURE__ */ (0, z.jsx)(b, {
+	return /* @__PURE__ */ (0, z.jsx)(ne, {
 		"data-slot": "sheet",
 		...e
 	});
 }
 function Yr({ ...e }) {
-	return /* @__PURE__ */ (0, z.jsx)(f, {
+	return /* @__PURE__ */ (0, z.jsx)(se, {
 		container: document.getElementById("ui-portal-root"),
 		"data-slot": "sheet-portal",
 		...e
 	});
 }
 function Xr({ className: e, ...t }) {
-	return /* @__PURE__ */ (0, z.jsx)(ee, {
+	return /* @__PURE__ */ (0, z.jsx)(f, {
 		"data-slot": "sheet-overlay",
 		className: c("tw:fixed tw:inset-0 tw:z-50 tw:bg-black/50 tw:data-[state=closed]:animate-out tw:data-[state=closed]:fade-out-0 tw:data-[state=open]:animate-in tw:data-[state=open]:fade-in-0", e),
 		...t
 	});
 }
 function Zr({ className: e, children: t, side: n = "right", showCloseButton: r = !0, ...i }) {
-	return /* @__PURE__ */ (0, z.jsxs)(Yr, { children: [/* @__PURE__ */ (0, z.jsx)(Xr, {}), /* @__PURE__ */ (0, z.jsxs)(k, {
+	return /* @__PURE__ */ (0, z.jsxs)(Yr, { children: [/* @__PURE__ */ (0, z.jsx)(Xr, {}), /* @__PURE__ */ (0, z.jsxs)(re, {
 		"data-slot": "sheet-content",
 		className: c("tw:fixed tw:z-50 tw:flex tw:flex-col tw:gap-4 tw:bg-background tw:shadow-lg tw:transition tw:ease-in-out tw:data-[state=closed]:animate-out tw:data-[state=closed]:duration-300 tw:data-[state=open]:animate-in tw:data-[state=open]:duration-500", n === "right" && "tw:inset-y-0 tw:right-0 tw:h-full tw:w-3/4 tw:border-l tw:data-[state=closed]:slide-out-to-right tw:data-[state=open]:slide-in-from-right tw:sm:max-w-sm", n === "left" && "tw:inset-y-0 tw:left-0 tw:h-full tw:w-3/4 tw:border-r tw:data-[state=closed]:slide-out-to-left tw:data-[state=open]:slide-in-from-left tw:sm:max-w-sm", n === "top" && "tw:inset-x-0 tw:top-0 tw:h-auto tw:border-b tw:data-[state=closed]:slide-out-to-top tw:data-[state=open]:slide-in-from-top", n === "bottom" && "tw:inset-x-0 tw:bottom-0 tw:h-auto tw:border-t tw:data-[state=closed]:slide-out-to-bottom tw:data-[state=open]:slide-in-from-bottom", e),
 		...i,
-		children: [t, r && /* @__PURE__ */ (0, z.jsxs)(re, {
+		children: [t, r && /* @__PURE__ */ (0, z.jsxs)(A, {
 			className: "tw:absolute tw:top-4 tw:right-4 tw:rounded-xs tw:opacity-70 tw:ring-offset-background tw:transition-opacity tw:hover:opacity-100 tw:focus:ring-2 tw:focus:ring-ring tw:focus:ring-offset-2 tw:focus:outline-hidden tw:disabled:pointer-events-none tw:data-[state=open]:bg-secondary",
-			children: [/* @__PURE__ */ (0, z.jsx)(y, { className: "tw:size-4" }), /* @__PURE__ */ (0, z.jsx)("span", {
+			children: [/* @__PURE__ */ (0, z.jsx)(C, { className: "tw:size-4" }), /* @__PURE__ */ (0, z.jsx)("span", {
 				className: "tw:sr-only",
 				children: "Close"
 			})]
@@ -1754,14 +1754,14 @@ function Qr({ className: e, ...t }) {
 	});
 }
 function $r({ className: e, ...t }) {
-	return /* @__PURE__ */ (0, z.jsx)(ce, {
+	return /* @__PURE__ */ (0, z.jsx)(Ce, {
 		"data-slot": "sheet-title",
 		className: c("tw:font-semibold tw:text-foreground", e),
 		...t
 	});
 }
 function ei({ className: e, ...t }) {
-	return /* @__PURE__ */ (0, z.jsx)(ie, {
+	return /* @__PURE__ */ (0, z.jsx)(D, {
 		"data-slot": "sheet-description",
 		className: c("tw:text-sm tw:text-muted-foreground", e),
 		...t
@@ -1841,9 +1841,9 @@ var ci = {
 	users: Gr
 };
 function li({ children: e }) {
-	let t = window.APP_CONFIG, [n, i] = (0, R.useState)(!1), [a, o] = (0, R.useState)(!1), s = m(), u = xe(async () => {
+	let t = window.APP_CONFIG, [n, i] = (0, R.useState)(!1), [a, o] = (0, R.useState)(!1), s = m(), u = Se(async () => {
 		await r("logout.php", "POST"), window.location.assign(t.login);
-	}), f = t.navigation.filter((e) => l(t, e.permission)), p = t.userEmail.slice(0, 2).toUpperCase() || "SK", h = (/* @__PURE__ */ new Date()).toLocaleDateString("en-PH", {
+	}), f = t.navigation.filter((e) => l(t, e.permission)), p = t.userEmail.slice(0, 2).toUpperCase() || "SP", h = (/* @__PURE__ */ new Date()).toLocaleDateString("en-PH", {
 		timeZone: "Asia/Manila",
 		weekday: "short",
 		month: "short",
@@ -1857,11 +1857,11 @@ function li({ children: e }) {
 				href: f.find((e) => e.key === "dashboard")?.href || f[0]?.href || t.login,
 				children: [/* @__PURE__ */ (0, z.jsx)("span", {
 					className: "ui-brand-emblem",
-					children: "SK"
+					children: "SP"
 				}), !e && /* @__PURE__ */ (0, z.jsxs)("span", { children: [/* @__PURE__ */ (0, z.jsxs)("strong", { children: ["Committee", /* @__PURE__ */ (0, z.jsx)("span", {
 					className: "ui-brand-dot",
 					children: "."
-				})] }), /* @__PURE__ */ (0, z.jsx)("small", { children: "SANGGUNIANG KABATAAN" })] })]
+				})] }), /* @__PURE__ */ (0, z.jsx)("small", { children: "SANGGUNIANG PANLUNGSOD" })] })]
 			}),
 			/* @__PURE__ */ (0, z.jsx)(si, { className: "ui-nav-separator" }),
 			/* @__PURE__ */ (0, z.jsx)("nav", {
@@ -1973,7 +1973,7 @@ function li({ children: e }) {
 									children: [/* @__PURE__ */ (0, z.jsx)("span", {
 										className: "ui-avatar",
 										children: p
-									}), /* @__PURE__ */ (0, z.jsx)(O, { size: 14 })]
+									}), /* @__PURE__ */ (0, z.jsx)(b, { size: 14 })]
 								})
 							}), /* @__PURE__ */ (0, z.jsxs)(ri, {
 								align: "end",
@@ -2006,7 +2006,7 @@ function li({ children: e }) {
 							children: [/* @__PURE__ */ (0, z.jsxs)("div", { children: [
 								/* @__PURE__ */ (0, z.jsx)("p", {
 									className: "ui-eyebrow",
-									children: "SK COMMITTEE WORKSPACE"
+									children: "SP COMMITTEE WORKSPACE"
 								}),
 								/* @__PURE__ */ (0, z.jsx)("h1", { children: t.title }),
 								/* @__PURE__ */ (0, z.jsx)("p", { children: t.description })
@@ -2018,7 +2018,7 @@ function li({ children: e }) {
 					}),
 					/* @__PURE__ */ (0, z.jsxs)("footer", {
 						className: "ui-footer",
-						children: [/* @__PURE__ */ (0, z.jsx)("span", { children: "SK Committee Management System" }), /* @__PURE__ */ (0, z.jsx)("span", { children: "Purposeful work. Stronger communities." })]
+						children: [/* @__PURE__ */ (0, z.jsx)("span", { children: "SP Committee Management System" }), /* @__PURE__ */ (0, z.jsx)("span", { children: "Purposeful work. Stronger communities." })]
 					})
 				]
 			})
@@ -2028,16 +2028,16 @@ function li({ children: e }) {
 //#endregion
 //#region frontend/app.tsx
 var ui = /* @__PURE__ */ e({ App: () => mi }), di = {
-	login: () => import("./login-ouLSioAi.js"),
-	dashboard: () => import("./dashboard-RUzStjBf.js"),
-	members: () => import("./members-DMgm_K4P.js"),
-	committees: () => import("./committees-Cj7bkvL3.js"),
-	assignments: () => import("./assignments-COs2W8fa.js"),
-	jurisdiction: () => import("./jurisdiction-B1DosU4-.js"),
-	workload: () => import("./workload-mOaHzvqq.js"),
-	performance: () => import("./performance-GLlm5kV7.js"),
-	reports: () => import("./reports-SakCdI6q.js"),
-	users: () => import("./users-DM2n8DRs.js"),
+	login: () => import("./login-B7kNQ1iU.js"),
+	dashboard: () => import("./dashboard-CBnWXmcV.js"),
+	members: () => import("./members-B-8bvtVH.js"),
+	committees: () => import("./committees-CRbPvxAs.js"),
+	assignments: () => import("./assignments-CTDHGII9.js"),
+	jurisdiction: () => import("./jurisdiction-pIqD1M0_.js"),
+	workload: () => import("./workload-CDX0wxWM.js"),
+	performance: () => import("./performance-DQqZSZ_o.js"),
+	reports: () => import("./reports-D3-IZG7V.js"),
+	users: () => import("./users-BHoKLPSH.js"),
 	forbidden: () => import("./forbidden-B0KFy6wT.js")
 }, fi = new ke({ defaultOptions: {
 	queries: {
@@ -2068,12 +2068,12 @@ var ui = /* @__PURE__ */ e({ App: () => mi }), di = {
 };
 function mi() {
 	let e = window.APP_CONFIG, t = (0, R.lazy)(di[e.page] || di.forbidden), n = /* @__PURE__ */ (0, z.jsx)(pi, { children: /* @__PURE__ */ (0, z.jsx)(R.Suspense, {
-		fallback: /* @__PURE__ */ (0, z.jsx)(le, {}),
+		fallback: /* @__PURE__ */ (0, z.jsx)(ce, {}),
 		children: /* @__PURE__ */ (0, z.jsx)(t, {})
 	}) });
-	return /* @__PURE__ */ (0, z.jsx)(T, {
+	return /* @__PURE__ */ (0, z.jsx)(v, {
 		client: fi,
-		children: /* @__PURE__ */ (0, z.jsx)(gr, { children: /* @__PURE__ */ (0, z.jsxs)(ve, { children: [/* @__PURE__ */ (0, z.jsx)("a", {
+		children: /* @__PURE__ */ (0, z.jsx)(gr, { children: /* @__PURE__ */ (0, z.jsxs)(_e, { children: [/* @__PURE__ */ (0, z.jsx)("a", {
 			href: "#main-content",
 			className: "ui-skip-link",
 			children: "Skip to content"
@@ -2081,4 +2081,4 @@ function mi() {
 	});
 }
 //#endregion
-export { mi as App, Fr as a, Tr as c, _r as d, yr as f, Ge as g, rt as h, Ur as i, Cr as l, it as m, qr as n, kr as o, vr as p, Gr as r, Dr as s, ui as t, xr as u };
+export { mi as App, Dr as a, _r as c, it as d, rt as f, kr as i, yr as l, qr as n, Cr as o, Ge as p, Gr as r, xr as s, ui as t, vr as u };

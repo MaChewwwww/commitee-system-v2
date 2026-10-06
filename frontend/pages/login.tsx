@@ -64,7 +64,7 @@ export default function Login() {
     <main id="main-content" className="ui-login">
       <section className="ui-login-brand">
         <div className="ui-brand">
-          <span className="ui-brand-emblem">SK</span>
+          <span className="ui-brand-emblem">SP</span>
           <span>
             <strong>
               Committee<span className="ui-brand-dot">.</span>
@@ -94,7 +94,7 @@ export default function Login() {
           </div>
         </div>
         <p className="ui-login-brand-footer">
-          SK Committee Management System · San Jose del Monte, Bulacan
+          SP Committee Management System · San Jose del Monte, Bulacan
         </p>
       </section>
       <section className="ui-login-main">
@@ -105,7 +105,7 @@ export default function Login() {
               alt="Official seal of San Jose del Monte"
             />
             <span>
-              <strong>City of San Jose del Monte</strong>Official SK Committee Workspace
+              <strong>City of San Jose del Monte</strong>Official SP Committee Workspace
             </span>
           </div>
           <div

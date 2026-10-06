@@ -61,7 +61,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     window.location.assign(config.login)
   })
   const navigation = config.navigation.filter((item) => can(config, item.permission))
-  const initials = config.userEmail.slice(0, 2).toUpperCase() || "SK"
+  const initials = config.userEmail.slice(0, 2).toUpperCase() || "SP"
   const date = new Date().toLocaleDateString("en-PH", {
     timeZone: "Asia/Manila",
     weekday: "short",
@@ -80,13 +80,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             config.login
           }
         >
-          <span className="ui-brand-emblem">SK</span>
+          <span className="ui-brand-emblem">SP</span>
           {!compact && (
             <span>
               <strong>
                 Committee<span className="ui-brand-dot">.</span>
               </strong>
-              <small>SANGGUNIANG KABATAAN</small>
+              <small>SANGGUNIANG PANLUNGSOD</small>
             </span>
           )}
         </a>
@@ -218,7 +218,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main id="main-content" className="ui-content">
           <div className="ui-page-heading">
             <div>
-              <p className="ui-eyebrow">SK COMMITTEE WORKSPACE</p>
+              <p className="ui-eyebrow">SP COMMITTEE WORKSPACE</p>
               <h1>{config.title}</h1>
               <p>{config.description}</p>
             </div>
@@ -229,7 +229,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
         <footer className="ui-footer">
-          <span>SK Committee Management System</span>
+          <span>SP Committee Management System</span>
           <span>Purposeful work. Stronger communities.</span>
         </footer>
       </div>

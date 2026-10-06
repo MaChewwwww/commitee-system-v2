@@ -7,7 +7,7 @@ corsHeaders();
 $data  = json_decode(file_get_contents('php://input'), true);
 $email = is_array($data) ? otpNormalizeEmail((string) ($data['email'] ?? '')) : '';
 $otp   = is_array($data) ? otpNormalizeCode((string) ($data['otp'] ?? '')) : '';
-    10|$diag  = otpSafeDiagEnabled(is_array($data) ? $data : null);
+$diag  = otpSafeDiagEnabled(is_array($data) ? $data : null);
 
 function verifyFail(string $userMessage, string $reason, bool $diag): void {
     error_log('verify_otp fail reason=' . $reason);

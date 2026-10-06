@@ -80,6 +80,10 @@ CREATE TABLE IF NOT EXISTS committees (
   id CHAR(36) NOT NULL DEFAULT '',
   name VARCHAR(255) NOT NULL,
   type VARCHAR(100) NULL,
+  issued_date DATE NULL,
+  issued_by VARCHAR(255) NULL,
+  establishing_reference VARCHAR(1000) NULL,
+  effective_until DATE NULL,
   purpose TEXT NULL,
   mandate TEXT NULL,
   qualification_requirements TEXT NULL,
@@ -110,6 +114,11 @@ CREATE TABLE IF NOT EXISTS tasks (
   description TEXT NULL,
   status VARCHAR(50) NOT NULL DEFAULT 'pending',
   due_date DATE NULL,
+  completed_at DATETIME NULL,
+  approved_by VARCHAR(255) NULL,
+  submitted_at DATETIME NULL,
+  approved_at DATETIME NULL,
+  approved_by_user_id CHAR(36) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -130,6 +139,10 @@ CREATE TABLE IF NOT EXISTS jurisdictions (
   committee_id CHAR(36) NOT NULL,
   area_name VARCHAR(255) NOT NULL,
   category VARCHAR(100) NULL,
+  level VARCHAR(100) NULL,
+  legal_basis VARCHAR(1000) NULL,
+  effectivity_date DATE NULL,
+  effective_until DATE NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_jurisdictions_created_at (created_at),
@@ -137,6 +150,18 @@ CREATE TABLE IF NOT EXISTS jurisdictions (
   CONSTRAINT fk_jurisdictions_committee
     FOREIGN KEY (committee_id) REFERENCES committees (id)
     ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS penalties (
+  id CHAR(36) NOT NULL,
+  violation VARCHAR(255) NOT NULL,
+  legal_basis VARCHAR(1000) NULL,
+  first_offense VARCHAR(255) NOT NULL,
+  second_offense VARCHAR(255) NOT NULL,
+  third_offense VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_penalties_created_at (created_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS committee_members (
@@ -183,6 +208,7 @@ CREATE TABLE IF NOT EXISTS reports (
   title VARCHAR(255) NOT NULL,
   committee_id CHAR(36) NULL,
   report_type VARCHAR(100) NOT NULL,
+  snapshot_json LONGTEXT NULL,
   date_from DATE NULL,
   date_to DATE NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

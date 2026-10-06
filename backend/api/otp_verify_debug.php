@@ -15,6 +15,13 @@
  * URL: /backend/api/otp_verify_debug.php
  */
 declare(strict_types=1);
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/rbac.php';
+if (committeeEnv('COMMITTEE_DIAGNOSTICS','0') !== '1') { http_response_code(404); exit; }
+$diagnosticContext=currentUserContext();
+if ($diagnosticContext['role_code'] !== 'super_admin') rbacForbidden('Administrator access required.');
+
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/otp.php';

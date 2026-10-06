@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /** Back up and clear only application data; schema and triggers remain intact. */
 function backupSeedDatabase(PDO $pdo, string $path): array {
-    $tables = ['committee_members', 'committees', 'jurisdictions', 'legislative_archives', 'members', 'module_integration_log', 'otp_codes', 'performance', 'permissions', 'reports', 'role_permissions', 'roles', 'session_performance_logs', 'tasks', 'users'];
+    $tables = ['committee_members', 'committees', 'jurisdictions', 'legislative_archives', 'members', 'module_integration_log', 'otp_codes', 'penalties', 'performance', 'permissions', 'reports', 'role_permissions', 'roles', 'session_performance_logs', 'tasks', 'users'];
     $actual = $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
     sort($actual); sort($tables);
     if ($actual !== $tables) { throw new RuntimeException('Reset stopped: unexpected or missing tables in the configured database.'); }

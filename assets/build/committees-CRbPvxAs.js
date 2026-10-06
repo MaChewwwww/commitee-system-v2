@@ -1,11 +1,10 @@
 import { r as e } from "./rolldown-runtime-B0aSnxlc.js";
 import { t } from "./react-B4u1yd7E.js";
 import { h as n, i as r, l as i, n as a, o, s } from "./api-DVPVP-g0.js";
-import { A as c, B as l, C as u, H as d, M as f, N as p, P as m, R as h, S as g, b as _, h as v, j as y, l as b, n as x, o as S, t as C, u as w, v as T, x as E, y as D, z as O } from "./hooks-CGjnItOC.js";
-import { t as k } from "./trash-C6NxJFw3.js";
-import { t as A } from "./management-B_sQlv9E.js";
-import { l as j, n as M } from "./app-4em4_PaO.js";
-import { t as N } from "./calculations-Pe71IOFb.js";
+import { A as c, B as l, C as u, M as d, N as f, P as p, S as m, U as h, V as g, b as _, h as v, j as y, l as b, n as x, o as S, t as C, u as w, v as T, x as E, y as D, z as O } from "./hooks-BlRndFBy.js";
+import { n as k, t as A } from "./management-Z1Cs2zh-.js";
+import { n as j, o as M } from "./app-DpC2qKu3.js";
+import { n as N } from "./calculations-ZvWekKcJ.js";
 //#region node_modules/lucide-react/dist/esm/icons/lightbulb.mjs
 var P = {
 	name: "lightbulb",
@@ -84,7 +83,7 @@ var z = i(R), B = {
 	]
 };
 B.node;
-var V = i(B), H = /* @__PURE__ */ e(t(), 1), U = n(), W = g([
+var V = i(B), H = /* @__PURE__ */ e(t(), 1), U = n(), W = m([
 	"Member",
 	"Chairperson",
 	"Vice Chairperson",
@@ -92,7 +91,7 @@ var V = i(B), H = /* @__PURE__ */ e(t(), 1), U = n(), W = g([
 	"Treasurer"
 ]);
 function G({ committeeId: e }) {
-	let t = x("assignments"), n = x("members"), [i, c] = (0, H.useState)(""), [l, f] = (0, H.useState)("Member"), [p, m] = (0, H.useState)({}), [g, _] = (0, H.useState)(), y = u(), E = C((e) => e.method === "DELETE" ? r("assignments", e.body.id) : o("assignments", e.body, e.method === "PUT"), ["assignments"]), D = (t.data || []).filter((t) => t.committee_id === e), A = (n.data || []).filter((e) => !D.some((t) => t.member_id === e.id)), j = window.APP_CONFIG;
+	let t = x("assignments"), n = x("members"), [i, c] = (0, H.useState)(""), [d, f] = (0, H.useState)("Member"), [p, m] = (0, H.useState)({}), [g, _] = (0, H.useState)(), y = u(), E = C((e) => e.method === "DELETE" ? r("assignments", e.body.id) : o("assignments", e.body, e.method === "PUT"), ["assignments"]), D = (t.data || []).filter((t) => t.committee_id === e), A = (n.data || []).filter((e) => !D.some((t) => t.member_id === e.id)), M = window.APP_CONFIG;
 	async function N(e, t) {
 		try {
 			let n = await E.run({
@@ -117,7 +116,7 @@ function G({ committeeId: e }) {
 			/* @__PURE__ */ (0, U.jsxs)("div", { children: [/* @__PURE__ */ (0, U.jsxs)("div", {
 				className: "tw:flex tw:items-center tw:gap-2",
 				children: [
-					/* @__PURE__ */ (0, U.jsx)(M, { size: 18 }),
+					/* @__PURE__ */ (0, U.jsx)(j, { size: 18 }),
 					/* @__PURE__ */ (0, U.jsx)("h3", {
 						className: "tw:font-semibold",
 						children: "Committee members"
@@ -131,7 +130,7 @@ function G({ committeeId: e }) {
 				className: "tw:text-xs tw:text-muted-foreground",
 				children: "Membership changes save immediately, separately from committee details. Maximum five members."
 			})] }),
-			!a(j, "assignments.view") || !a(j, "members.view") ? /* @__PURE__ */ (0, U.jsx)("p", { children: "Permission to view members and assignments is required." }) : /* @__PURE__ */ (0, U.jsxs)(v, {
+			!a(M, "assignments.view") || !a(M, "members.view") ? /* @__PURE__ */ (0, U.jsx)("p", { children: "Permission to view members and assignments is required." }) : /* @__PURE__ */ (0, U.jsxs)(v, {
 				queries: [t, n],
 				children: [
 					D.length === 0 && /* @__PURE__ */ (0, U.jsx)("p", {
@@ -164,7 +163,7 @@ function G({ committeeId: e }) {
 									label: `Role for ${r}`,
 									value: i,
 									items: W,
-									disabled: !a(j, "assignments.update") || E.isPending,
+									disabled: !a(M, "assignments.update") || E.isPending,
 									onChange: (t) => m((n) => ({
 										...n,
 										[e.id]: t
@@ -173,7 +172,7 @@ function G({ committeeId: e }) {
 								/* @__PURE__ */ (0, U.jsxs)("div", {
 									className: "tw:flex tw:items-center tw:justify-end tw:gap-1",
 									children: [
-										a(j, "assignments.update") && o && /* @__PURE__ */ (0, U.jsxs)(U.Fragment, { children: [/* @__PURE__ */ (0, U.jsxs)(s, {
+										a(M, "assignments.update") && o && /* @__PURE__ */ (0, U.jsxs)(U.Fragment, { children: [/* @__PURE__ */ (0, U.jsxs)(s, {
 											type: "button",
 											size: "sm",
 											"aria-label": `Save role for ${r}`,
@@ -182,7 +181,7 @@ function G({ committeeId: e }) {
 												id: e.id,
 												role: i
 											}),
-											children: [c ? /* @__PURE__ */ (0, U.jsx)(O, {
+											children: [c ? /* @__PURE__ */ (0, U.jsx)(l, {
 												size: 14,
 												className: "tw:animate-spin"
 											}) : /* @__PURE__ */ (0, U.jsx)(z, { size: 14 }), c ? "Saving" : "Save"]
@@ -201,9 +200,9 @@ function G({ committeeId: e }) {
 										!o && /* @__PURE__ */ (0, U.jsxs)("span", {
 											className: "tw:flex tw:items-center tw:gap-1 tw:px-2 tw:text-xs tw:text-muted-foreground",
 											role: "status",
-											children: [/* @__PURE__ */ (0, U.jsx)(d, { size: 13 }), " Saved"]
+											children: [/* @__PURE__ */ (0, U.jsx)(h, { size: 13 }), " Saved"]
 										}),
-										a(j, "assignments.delete") && /* @__PURE__ */ (0, U.jsxs)(s, {
+										a(M, "assignments.delete") && /* @__PURE__ */ (0, U.jsxs)(s, {
 											type: "button",
 											size: "sm",
 											variant: "ghost",
@@ -220,7 +219,7 @@ function G({ committeeId: e }) {
 							]
 						}, e.id);
 					}),
-					a(j, "assignments.create") && /* @__PURE__ */ (0, U.jsxs)("div", {
+					a(M, "assignments.create") && /* @__PURE__ */ (0, U.jsxs)("div", {
 						className: "tw:grid tw:items-end tw:gap-3 tw:rounded-xl tw:border tw:border-dashed tw:p-4 tw:sm:grid-cols-[minmax(0,1fr)_180px_auto]",
 						children: [
 							/* @__PURE__ */ (0, U.jsx)(w, {
@@ -235,7 +234,7 @@ function G({ committeeId: e }) {
 							}),
 							/* @__PURE__ */ (0, U.jsx)(w, {
 								label: "New member role",
-								value: l,
+								value: d,
 								items: W,
 								onChange: f,
 								disabled: E.isPending || D.length >= 5
@@ -243,13 +242,13 @@ function G({ committeeId: e }) {
 							/* @__PURE__ */ (0, U.jsxs)(s, {
 								type: "button",
 								variant: "outline",
-								disabled: !i || !l || E.isPending || D.length >= 5,
+								disabled: !i || !d || E.isPending || D.length >= 5,
 								onClick: () => void N("POST", {
 									committee_id: e,
 									member_id: i,
-									role: l
+									role: d
 								}),
-								children: [/* @__PURE__ */ (0, U.jsx)(h, { size: 14 }), " Assign member"]
+								children: [/* @__PURE__ */ (0, U.jsx)(O, { size: 14 }), " Assign member"]
 							}),
 							D.length >= 5 && /* @__PURE__ */ (0, U.jsx)("p", {
 								className: "tw:col-span-full tw:text-xs",
@@ -276,13 +275,13 @@ function G({ committeeId: e }) {
 }
 //#endregion
 //#region frontend/pages/committees.tsx
-var K = g([
+var K = m([
 	"Standing",
 	"Ad Hoc",
 	"Advisory"
 ]);
 function q() {
-	let e = x("committees"), t = x("jurisdictions"), n = x("assignments"), r = x("members"), [i, o] = (0, H.useState)(), s = new Set((t.data || []).map((e) => e.committee_id)), u = (e.data || []).filter((e) => s.has(e.id)).map((e) => e.name), [d, h] = (0, H.useState)("");
+	let e = x("committees"), t = x("jurisdictions"), n = x("assignments"), r = x("members"), [i, o] = (0, H.useState)(), s = new Set((t.data || []).map((e) => e.committee_id)), [l, u] = (0, H.useState)("");
 	return /* @__PURE__ */ (0, U.jsxs)(U.Fragment, { children: [/* @__PURE__ */ (0, U.jsx)(A, {
 		resource: "committees",
 		singular: "Committee",
@@ -321,6 +320,10 @@ function q() {
 		defaults: {
 			name: "",
 			type: "Standing",
+			issued_date: "",
+			issued_by: "",
+			establishing_reference: "",
+			effective_until: "",
 			purpose: "",
 			mandate: "",
 			qualification_requirements: ""
@@ -331,17 +334,33 @@ function q() {
 				label: "Committee name",
 				fullWidth: !0,
 				required: !0,
-				items: [.../* @__PURE__ */ new Set([...u, ...t ? [t.name] : []])].map((e) => ({
-					value: e,
-					label: e
-				})),
-				disabled: !a(window.APP_CONFIG, "jurisdictions.view"),
-				placeholder: "Select a committee linked to Jurisdiction"
+				placeholder: "Name from the council’s committee-creation record"
+			},
+			{
+				name: "establishing_reference",
+				label: "Establishing reference",
+				placeholder: "Resolution, ordinance, order, or rules of procedure",
+				fullWidth: !0
+			},
+			{
+				name: "effective_until",
+				label: "Effective until",
+				type: "date"
 			},
 			{
 				name: "purpose",
 				label: "Purpose",
 				type: "textarea"
+			},
+			{
+				name: "issued_date",
+				label: "Date issued",
+				type: "date"
+			},
+			{
+				name: "issued_by",
+				label: "Issued by",
+				placeholder: "Name of issuing person or authority"
 			},
 			{
 				name: "mandate",
@@ -357,7 +376,10 @@ function q() {
 				name: "type",
 				label: "Committee Type",
 				required: !0,
-				items: K
+				items: t?.type && !K.some((e) => e.value === t.type) ? [...K, {
+					value: t.type,
+					label: `${t.type} (existing)`
+				}] : K
 			}
 		],
 		columns: [
@@ -392,31 +414,36 @@ function q() {
 				cell: ({ row: e }) => /* @__PURE__ */ (0, U.jsx)(E, { value: e.original.type })
 			},
 			{
-				accessorKey: "created_at",
-				header: "Created",
-				cell: ({ row: e }) => N(e.original.created_at)
+				accessorKey: "issued_date",
+				header: "Date issued",
+				cell: ({ row: e }) => N(e.original.issued_date)
+			},
+			{
+				accessorKey: "issued_by",
+				header: "Issued by",
+				cell: ({ row: e }) => e.original.issued_by || "Not specified"
 			}
 		],
 		filter: /* @__PURE__ */ (0, U.jsx)(T, {
 			label: "Filter committee type",
-			value: d,
-			onChange: h,
+			value: l,
+			onChange: u,
 			items: K,
 			placeholder: "All committee types"
 		}),
-		filteredData: (e) => d ? e.filter((e) => e.type === d) : e,
+		filteredData: (e) => l ? e.filter((e) => e.type === l) : e,
 		before: /* @__PURE__ */ (0, U.jsx)(_, { children: [
 			{
 				label: "All committees",
 				value: e.data?.length,
-				icon: j,
+				icon: M,
 				hint: "Organized around shared goals",
 				tone: "blue"
 			},
 			{
 				label: "Standing",
 				value: e.data?.filter((e) => e.type === "Standing").length,
-				icon: l,
+				icon: g,
 				hint: "Ongoing committee responsibilities",
 				tone: "green"
 			},
@@ -446,10 +473,10 @@ function q() {
 		},
 		children: /* @__PURE__ */ (0, U.jsxs)(y, {
 			className: "ui-dialog tw:sm:max-w-3xl",
-			children: [/* @__PURE__ */ (0, U.jsxs)(p, { children: [/* @__PURE__ */ (0, U.jsx)(m, {
+			children: [/* @__PURE__ */ (0, U.jsxs)(f, { children: [/* @__PURE__ */ (0, U.jsx)(p, {
 				className: "tw:pr-6 tw:break-words",
 				children: i?.name
-			}), /* @__PURE__ */ (0, U.jsx)(f, { children: "Committee details, linked jurisdiction, and assigned members." })] }), i && /* @__PURE__ */ (0, U.jsxs)("div", {
+			}), /* @__PURE__ */ (0, U.jsx)(d, { children: "Committee details, linked jurisdiction, and assigned members." })] }), i && /* @__PURE__ */ (0, U.jsxs)("div", {
 				className: "tw:space-y-5",
 				children: [
 					/* @__PURE__ */ (0, U.jsxs)("div", {
@@ -462,6 +489,10 @@ function q() {
 					/* @__PURE__ */ (0, U.jsx)("dl", {
 						className: "tw:grid tw:gap-4 tw:sm:grid-cols-2",
 						children: [
+							["Date issued", i.issued_date ? N(i.issued_date) : "Not specified"],
+							["Issued by", i.issued_by],
+							["Establishing reference", i.establishing_reference],
+							["Effective until", i.effective_until ? N(i.effective_until) : "No end date recorded"],
 							["Purpose", i.purpose],
 							["Mandate", i.mandate],
 							["Qualification requirements", i.qualification_requirements]

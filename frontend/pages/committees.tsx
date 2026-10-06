@@ -23,7 +23,6 @@ export default function Committees() {
   const members = useResource("members")
   const [viewing, setViewing] = useState<Committee>()
   const linkedIds = new Set((jurisdictions.data || []).map((j) => j.committee_id))
-  const linkedNames = (committees.data || []).filter((c) => linkedIds.has(c.id)).map((c) => c.name)
   const [committeeType, setCommitteeType] = useState("")
   return (
     <>
@@ -69,6 +68,10 @@ export default function Committees() {
         defaults={{
           name: "",
           type: "Standing",
+          issued_date: "",
+          issued_by: "",
+          establishing_reference: "",
+          effective_until: "",
           purpose: "",
           mandate: "",
           qualification_requirements: "",
@@ -79,14 +82,22 @@ export default function Committees() {
             label: "Committee name",
             fullWidth: true,
             required: true,
-            items: [...new Set([...linkedNames, ...(row ? [row.name] : [])])].map((name) => ({
-              value: name,
-              label: name,
-            })),
-            disabled: !can(window.APP_CONFIG, "jurisdictions.view"),
-            placeholder: "Select a committee linked to Jurisdiction",
+            placeholder: "Name from the council’s committee-creation record",
           },
+          {
+            name: "establishing_reference",
+            label: "Establishing reference",
+            placeholder: "Resolution, ordinance, order, or rules of procedure",
+            fullWidth: true,
+          },
+          { name: "effective_until", label: "Effective until", type: "date" },
           { name: "purpose", label: "Purpose", type: "textarea" },
+          { name: "issued_date", label: "Date issued", type: "date" },
+          {
+            name: "issued_by",
+            label: "Issued by",
+            placeholder: "Name of issuing person or authority",
+          },
           { name: "mandate", label: "Mandate", type: "textarea" },
           {
             name: "qualification_requirements",
@@ -97,7 +108,10 @@ export default function Committees() {
             name: "type",
             label: "Committee Type",
             required: true,
-            items: committeeTypes,
+            items:
+              row?.type && !committeeTypes.some((type) => type.value === row.type)
+                ? [...committeeTypes, { value: row.type, label: `${row.type} (existing)` }]
+                : committeeTypes,
           },
         ]}
         columns={[
@@ -141,9 +155,14 @@ export default function Committees() {
             cell: ({ row }) => <StatusBadge value={row.original.type} />,
           },
           {
-            accessorKey: "created_at",
-            header: "Created",
-            cell: ({ row }) => dateLabel(row.original.created_at),
+            accessorKey: "issued_date",
+            header: "Date issued",
+            cell: ({ row }) => dateLabel(row.original.issued_date),
+          },
+          {
+            accessorKey: "issued_by",
+            header: "Issued by",
+            cell: ({ row }) => row.original.issued_by || "Not specified",
           },
         ]}
         filter={
@@ -221,6 +240,18 @@ export default function Committees() {
               </div>
               <dl className="tw:grid tw:gap-4 tw:sm:grid-cols-2">
                 {[
+                  [
+                    "Date issued",
+                    viewing.issued_date ? dateLabel(viewing.issued_date) : "Not specified",
+                  ],
+                  ["Issued by", viewing.issued_by],
+                  ["Establishing reference", viewing.establishing_reference],
+                  [
+                    "Effective until",
+                    viewing.effective_until
+                      ? dateLabel(viewing.effective_until)
+                      : "No end date recorded",
+                  ],
                   ["Purpose", viewing.purpose],
                   ["Mandate", viewing.mandate],
                   ["Qualification requirements", viewing.qualification_requirements],

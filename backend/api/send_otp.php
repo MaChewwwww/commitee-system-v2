@@ -116,8 +116,8 @@ try {
     $mail->Timeout    = 20;
     $mail->setFrom($from, $smtp['from_name']);
     $mail->addAddress($canonicalEmail);
-    $mail->Subject = 'Your OTP Code - SK Committee System';
-    $mail->Body    = 'Your OTP code is: ' . $otp . "\n\nThis code expires in " . otpExpiryHumanLabel() . ".\n\nSK Committee Management System";
+    $mail->Subject = 'Your OTP Code - SP Committee System';
+    $mail->Body    = 'Your OTP code is: ' . $otp . "\n\nThis code expires in " . otpExpiryHumanLabel() . ".\n\nSP Committee Management System";
     $mail->send();
     $isLocal = (committeeEnv('APP_ENV') === 'local') || in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost:8000', '127.0.0.1:8000', 'localhost', '127.0.0.1']);
     $msg = $isLocal ? "OTP sent to your email! (Local code: {$otp})" : 'OTP sent successfully';

@@ -1,8 +1,8 @@
 import { r as e } from "./rolldown-runtime-B0aSnxlc.js";
 import { t } from "./react-B4u1yd7E.js";
 import { a as n, h as r, l as i, s as a } from "./api-DVPVP-g0.js";
-import { C as o, F as s, L as c, l, r as u, t as d, u as f } from "./hooks-CGjnItOC.js";
-import { n as p, r as m } from "./app-4em4_PaO.js";
+import { C as o, I as s, R as c, l, r as u, t as d, u as f } from "./hooks-BlRndFBy.js";
+import { n as p, r as m } from "./app-DpC2qKu3.js";
 //#region node_modules/lucide-react/dist/esm/icons/arrow-left.mjs
 var h = {
 	name: "arrow-left",
@@ -101,7 +101,7 @@ function T() {
 					className: "ui-brand",
 					children: [/* @__PURE__ */ (0, w.jsx)("span", {
 						className: "ui-brand-emblem",
-						children: "SK"
+						children: "SP"
 					}), /* @__PURE__ */ (0, w.jsxs)("span", { children: [/* @__PURE__ */ (0, w.jsxs)("strong", { children: ["Committee", /* @__PURE__ */ (0, w.jsx)("span", {
 						className: "ui-brand-dot",
 						children: "."
@@ -128,7 +128,7 @@ function T() {
 				}),
 				/* @__PURE__ */ (0, w.jsx)("p", {
 					className: "ui-login-brand-footer",
-					children: "SK Committee Management System · San Jose del Monte, Bulacan"
+					children: "SP Committee Management System · San Jose del Monte, Bulacan"
 				})
 			]
 		}), /* @__PURE__ */ (0, w.jsx)("section", {
@@ -141,7 +141,7 @@ function T() {
 						children: [/* @__PURE__ */ (0, w.jsx)("img", {
 							src: `${window.APP_CONFIG.assets}/logo.jpg`,
 							alt: "Official seal of San Jose del Monte"
-						}), /* @__PURE__ */ (0, w.jsxs)("span", { children: [/* @__PURE__ */ (0, w.jsx)("strong", { children: "City of San Jose del Monte" }), "Official SK Committee Workspace"] })]
+						}), /* @__PURE__ */ (0, w.jsxs)("span", { children: [/* @__PURE__ */ (0, w.jsx)("strong", { children: "City of San Jose del Monte" }), "Official SP Committee Workspace"] })]
 					}),
 					/* @__PURE__ */ (0, w.jsxs)("div", {
 						className: "ui-login-step",

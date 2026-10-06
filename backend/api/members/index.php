@@ -119,13 +119,15 @@ function memberDependencies(PDO $pdo, string $memberId): int {
         'SELECT COUNT(*) FROM committee_members WHERE member_id = :committee_member_id '
         . 'UNION ALL SELECT COUNT(*) FROM tasks WHERE member_id = :task_member_id '
         . 'UNION ALL SELECT COUNT(*) FROM performance WHERE member_id = :performance_member_id '
-        . 'UNION ALL SELECT COUNT(*) FROM session_performance_logs WHERE member_id = :session_member_id'
+        . 'UNION ALL SELECT COUNT(*) FROM session_performance_logs WHERE member_id = :session_member_id '
+        . 'UNION ALL SELECT COUNT(*) FROM users WHERE member_id = :user_member_id'
     );
     $statement->execute([
         'committee_member_id' => $memberId,
         'task_member_id' => $memberId,
         'performance_member_id' => $memberId,
         'session_member_id' => $memberId,
+        'user_member_id' => $memberId,
     ]);
 
     return array_sum(array_map('intval', $statement->fetchAll(PDO::FETCH_COLUMN)));

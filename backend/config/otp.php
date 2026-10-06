@@ -58,7 +58,7 @@ function otpCodesMatch(string $stored, string $submitted): bool {
 }
 
 function otpSafeDiagEnabled(?array $data): bool {
-    return is_array($data) && (($data['diag'] ?? '') === 'CM-OTP-DIAG-2026');
+    return false; // Public sign-in responses never expose account or OTP diagnostics.
 }
 
 function otpRedactError(Throwable $e): string {
@@ -87,4 +87,3 @@ function otpDbFlag(mixed $value): int {
     }
     return (int) $value;
 }
-

@@ -7,10 +7,25 @@ import {
   workloadStatus,
   performanceScores,
   dateLabel,
+  committeeOpen,
 } from "@/lib/calculations"
 import { buildReport, csvText, printDocument } from "@/lib/reports"
 import { config, members, tasks, performance, committees, assignments } from "./fixtures"
 describe("existing business rules", () => {
+  it("counts all unfinished workflow states and retains completion evidence", () => {
+    const all = ["pending", "in_progress", "awaiting_approval", "completed"] as const
+    expect(
+      pendingCount(
+        all.map((status) => ({ ...tasks[0], status })),
+        members[0].id,
+      ),
+    ).toBe(3)
+    const unknown = performanceScores(members, [{ ...tasks[1], completed_at: null }], performance)
+    expect(unknown[0].on_time_rate).toBe(0)
+    expect(unknown[0].final_score).toBe(70)
+    expect(committeeOpen({ status: "active", effective_until: "2000-01-01" })).toBe(false)
+    expect(committeeOpen({ status: "active", effective_until: "2099-01-01" })).toBe(true)
+  })
   it("preserves workload limits and boundaries", () => {
     expect(pendingCount(tasks, members[0].id)).toBe(1)
     expect([0, 1, 2, 5, 6].map(workloadStatus)).toEqual([
@@ -49,6 +64,22 @@ describe("existing business rules", () => {
     ).toEqual(["Poblacion"])
     expect(dateLabel("2026-10-02T18:00:00Z")).toContain("Oct 3")
     expect(dateLabel("2026-10-03")).toContain("Oct 3")
+  })
+  it("uses the recorded completion date and counts the entire due day as on time", () => {
+    const scores = performanceScores(
+      members,
+      [
+        {
+          ...tasks[1],
+          due_date: "2026-10-01",
+          completed_at: "2026-10-01 23:59:59",
+          updated_at: "2026-10-03 12:00:00",
+        },
+      ],
+      performance,
+    )
+    expect(scores[0].on_time_rate).toBe(100)
+    expect(scores[0].final_score).toBe(100)
   })
 })
 describe("API compatibility", () => {
@@ -122,13 +153,13 @@ describe("API compatibility", () => {
 })
 describe("report compatibility and safe export", () => {
   const data = { members, tasks, committees, assignments }
-  it("builds every existing report type and preserves completion-based report grades", () => {
+  it("builds every existing report type and uses the same weighted performance grades", () => {
     expect(buildReport("committee", data, "missing").rows).toHaveLength(0)
     expect(buildReport("member", data).rows[0][4]).toBe("1/5 tasks")
     expect(buildReport("performance", data).rows[0].slice(2)).toEqual([
       2,
       1,
-      "50%",
+      "55%",
       "Needs Improvement",
     ])
     expect(buildReport("workload", data).rows[0][4]).toBe("Underloaded")

@@ -7844,7 +7844,7 @@ function Nf(e, t = !0) {
 	return Xe({
 		queryKey: [e],
 		queryFn: ({ signal: t }) => l(e, t),
-		enabled: t && s(window.APP_CONFIG, e === "roles" ? "users.view" : `${e}.view`),
+		enabled: t && s(window.APP_CONFIG, e === "roles" ? "users.view" : e === "penalties" ? "jurisdictions.view" : `${e}.view`),
 		staleTime: 3e4,
 		retry: !1
 	});
@@ -7872,4 +7872,4 @@ function Pf(e, t = []) {
 	};
 }
 //#endregion
-export { Si as $, Pd as A, C as At, zl as B, ff as C, fe as Ct, lf as D, A as Dt, uf as E, j as Et, Od as F, Gs as G, Dl as H, Zl as I, gi as J, Us as K, Yl as L, Vd as M, D as Mt, Rd as N, ae as Nt, of as O, k as Ot, Bd as P, v as Pt, wi as Q, Gl as R, Tf as S, he as St, sf as T, w as Tt, Ws as U, kl as V, Ks as W, Oi as X, Li as Y, Fi as Z, mf as _, R as _t, jf as a, En as at, gf as b, Te as bt, Sf as c, on as ct, Of as d, Lt as dt, Ni as et, bf as f, H as ft, Af as g, at as gt, xf as h, ct as ht, wf as i, zn as it, Ld as j, M as jt, cf as k, O as kt, yf as l, tn as lt, _f as m, dt as mt, Nf as n, ei as nt, kf as o, hn as ot, pf as p, V as pt, Ds as q, Cf as r, Gn as rt, Mf as s, U as st, Pf as t, li as tt, Df as u, Gt as ut, Ef as v, tt as vt, af as w, de as wt, vf as x, ge as xt, hf as y, Fe as yt, Ul as z };
+export { wi as $, Pd as A, O as At, Ul as B, ff as C, he as Ct, lf as D, j as Dt, uf as E, w as Et, Nd as F, v as Ft, Ks as G, kl as H, Od as I, Ds as J, Gs as K, Zl as L, Vd as M, M as Mt, Rd as N, D as Nt, of as O, A as Ot, Bd as P, ae as Pt, Fi as Q, Yl as R, Tf as S, ge as St, sf as T, de as Tt, Dl as U, zl as V, Ws as W, Li as X, gi as Y, Oi as Z, mf as _, at as _t, jf as a, zn as at, gf as b, Fe as bt, Sf as c, U as ct, Of as d, Gt as dt, Si as et, bf as f, Lt as ft, Af as g, ct as gt, xf as h, dt as ht, wf as i, Gn as it, Ld as j, C as jt, cf as k, k as kt, yf as l, on as lt, _f as m, V as mt, Nf as n, li as nt, kf as o, En as ot, pf as p, H as pt, Us as q, Cf as r, ei as rt, Mf as s, hn as st, Pf as t, Ni as tt, Df as u, tn as ut, Ef as v, R as vt, af as w, fe as wt, vf as x, Te as xt, hf as y, tt as yt, Gl as z };

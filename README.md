@@ -1,4 +1,4 @@
-# SK Committee Management System
+# SP Committee Management System
 
 A PHP application deployed on **Hostforge**, with a modern civic interface built
 from React, shadcn/ui, and Tailwind CSS v4. PHP still owns URLs, sessions, OTP
@@ -76,29 +76,50 @@ install the standalone `cn` package; local components use the existing helper,
 which understands the `tw:` prefix. Review theme tokens and accessibility for new
 components, then format, test, and rebuild.
 
-## Preserved workflow rules
+## Committee workflow
 
-- Members may have at most five pending tasks. Existing workload thresholds remain:
-  fewer than two is underloaded, two through five is balanced, and above five is overloaded.
-- The performance screen keeps 50% completion, 20% attendance, and 30% on-time
-  scoring, with existing grade boundaries. Successful AI analysis can supply the
-  existing server-calculated scores. Saving attendance returns to local calculations.
-- Performance reports retain the existing completion-based grading, distinct from
-  the weighted performance screen. All five report types remain available.
-- Reporting dates label saved report metadata; report figures use current
-  accessible records, as before. Committee reports use the selected committee.
-- AI recommendations use the existing server policy: available members, below the
-  five-task cap, not already assigned. Lower workload limits are additionally
-  applied to returned recommendations when task data is accessible. Existing
-  successful AI results remain visible if a later request fails.
-- Role changes require `roles.manage`. Users cannot delete or deactivate themselves.
-- Committee-name options come from existing committees linked to Jurisdiction.
-  The edit dialog shows linked coverage and allows permission-controlled member
-  additions, role updates, and confirmed removals. Membership changes save
-  immediately through the assignment API, separately from committee details, with
-  the existing maximum of five members per committee.
-- Archive export and session-management actions retain their PHP endpoints and
-  permissions. URLs follow the configured application base instead of a hardcoded path.
+The workspace is branded **SP — Sangguniang Panlungsod**. Existing role codes and
+login accounts remain compatible. Record authorized committee details from the
+council's internal rules, resolution, ordinance, or other establishing instrument;
+creating an application record does not enact legislation.
+
+- Members holds the council/committee roster and monthly attendance summaries.
+- Committees records Standing, Ad Hoc, or Advisory type, issuance date, issuer,
+  authority reference, and optional term end date. Names can be entered before
+  jurisdiction exists. Old saved classifications remain editable.
+- Jurisdiction records Decision-making, Recommendatory, or Monitoring, legal basis,
+  area, optional start, and the committee's shared **effective-until** date.
+  Decision-making means powers within the recorded mandate. The penalty matrix
+  catalogs existing legal provisions; it does not authorize enforcement or create fines.
+- Assignments manages committee membership and operational tasks. Each committee
+  has at most one Chairperson and one Secretary. Preserve the existing five-member
+  and five-open-task caps as application policies, not statutory requirements.
+- Tasks follow Open → In progress → Awaiting approval → Completed. A different,
+  authorized reviewer approves completion. Submission time determines timeliness;
+  reviewer identity and approval time are stored separately. Unfinished work counts
+  toward capacity. Membership cannot be removed while its work is unfinished.
+- Workload and Performance monitor these same tasks. Performance uses 50% task
+  completion + 20% latest attendance + 30% on-time completion. Missing evidence
+  earns no points; historic dates and approvals are not invented.
+- Reports apply selected committee and dates, and store immutable server-generated
+  snapshots. Dates select tasks by creation date, attendance by reporting month,
+  and committee reports by issuance date. Roster totals reflect generation time.
+  Archives copy the saved snapshot and repeated archive requests reuse its reference.
+  Historical metadata-only reports need regeneration before archival.
+- Session export stores a local snapshot calculated from source tasks and attendance.
+  It does not submit to an external session system. AI results remain advisory and
+  respect the requesting account's scope; they do not silently create global reports.
+- Scoped accounts require linked members. Roles and permissions continue to govern
+  actions. Diagnostic endpoints are disabled unless COMMITTEE_DIAGNOSTICS=1 and
+  the user is an authenticated super administrator.
+
+Existing databases need the additive SQL files in `database/migrations/`, in numeric
+order. They preserve historic data and may safely be run again. Apply them before
+deploying these APIs. Fresh installations use `production_schema.sql`.
+
+Run `npm test`, `npm run build`, `npm run format:check`, and
+`php backend/tests/workflow_test.php` to verify the interface and workflow rules.
+See [the review notes](docs/workflow-review.md) for coverage and procedural boundaries.
 
 ## Development database seeds
 
@@ -147,7 +168,7 @@ preserved authentication page. The build directory contains `ui.css`, `ui.js`, a
 Uploading just the two entry files will break screen loading.
 
 Hostforge needs only PHP and static asset serving at runtime. No npm process,
-React server, Vite server, CDN Tailwind script, or database migration is required.
+React server, Vite server, or CDN Tailwind script is required. Apply the additive database migrations before updating the APIs.
 Do not upload `node_modules/`, `frontend/`, test files, or development tooling.
 Preserve the live database and server-side configuration.
 

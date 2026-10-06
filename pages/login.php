@@ -15,14 +15,14 @@ $sjdmLogoUrl = asset_url('logo.jpg');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — SK Committee System</title>
+    <title>Login — SP Committee System</title>
     <link rel="stylesheet" href="<?php echo htmlspecialchars(asset_url('css/style.css')); ?>">
 </head>
 <body>
 <div class="login-page">
     <div class="login-layout">
         <div class="login-branding">
-            <div class="login-seal" role="img" aria-label="Sangguniang Kabataan">
+            <div class="login-seal" role="img" aria-label="Sangguniang Panlungsod">
                 <svg class="login-seal-svg" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <circle cx="120" cy="120" r="118" fill="#0B2E50"/>
                     <circle cx="120" cy="120" r="112" fill="none" stroke="#F4B400" stroke-width="3"/>
@@ -31,18 +31,18 @@ $sjdmLogoUrl = asset_url('logo.jpg');
                     <line x1="78" y1="74" x2="102" y2="74" stroke="#F4B400" stroke-width="1.25" opacity="0.7"/>
                     <circle cx="120" cy="74" r="2" fill="#F4B400" opacity="0.85"/>
                     <line x1="138" y1="74" x2="162" y2="74" stroke="#F4B400" stroke-width="1.25" opacity="0.7"/>
-                    <text x="120" y="138" text-anchor="middle" fill="#FFFFFF" font-family="Georgia, 'Times New Roman', serif" font-size="58" font-weight="700">SK</text>
+                    <text x="120" y="138" text-anchor="middle" fill="#FFFFFF" font-family="Georgia, 'Times New Roman', serif" font-size="58" font-weight="700">SP</text>
                     <line x1="78" y1="162" x2="102" y2="162" stroke="#F4B400" stroke-width="1.25" opacity="0.7"/>
                     <circle cx="120" cy="162" r="2" fill="#F4B400" opacity="0.85"/>
                     <line x1="138" y1="162" x2="162" y2="162" stroke="#F4B400" stroke-width="1.25" opacity="0.7"/>
-                    <text x="120" y="190" text-anchor="middle" fill="#F4B400" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.6">KABATAAN</text>
+                    <text x="120" y="190" text-anchor="middle" fill="#F4B400" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="1.6">PANLUNGSOD</text>
                 </svg>
             </div>
-            <h1>SK Committee<br>Management System</h1>
+            <h1>SP Committee<br>Management System</h1>
             <p>Empowering youth governance through digital management and AI-assisted tools.</p>
             <div class="login-metrics">
                 <div class="login-metric"><strong>AI</strong><span>Assisted</span></div>
-                <div class="login-metric"><strong>SK</strong><span>Official</span></div>
+                <div class="login-metric"><strong>SP</strong><span>Official</span></div>
                 <div class="login-metric"><strong>LGU</strong><span>Ready</span></div>
             </div>
         </div>
@@ -90,7 +90,7 @@ $sjdmLogoUrl = asset_url('logo.jpg');
             <div id="msgBox" class="hidden mt-4 alert" role="status" aria-live="polite"></div>
 
             <div class="login-footer">
-                <p>Official SK Committee Management System</p>
+                <p>Official SP Committee Management System</p>
                 <p>Secured by OTP verification</p>
             </div>
         </div>

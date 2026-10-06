@@ -7,13 +7,14 @@ ob_start();
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/auth.php';
 require_once __DIR__ . '/../../config/rbac.php';
+require_once __DIR__ . '/../../domain/reporting.php';
 
 corsHeaders();
 ob_clean();
 
-const REPORT_SELECT = 'id, title, committee_id, report_type, date_from, date_to, created_at';
+const REPORT_SELECT = 'id, title, committee_id, report_type, date_from, date_to, created_at, snapshot_json';
 const REPORT_UUID = '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
-const REPORT_TYPES = ['committee', 'member', 'performance', 'workload', 'full', 'ai_summary'];
+const REPORT_TYPES = ['committee', 'member', 'performance', 'workload', 'full'];
 
 function reportResponse(array $payload, int $status = 200): void {
     http_response_code($status);
@@ -59,6 +60,7 @@ function reportDate(?string $value, string $label): ?string {
     if ($value === null || $value === '') {
         return null;
     }
+    workflowDate($value, $label);
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
         reportResponse(['success' => false, 'message' => $label . ' must be YYYY-MM-DD.'], 400);
     }
@@ -88,6 +90,9 @@ try {
                     }
                 ));
             }
+            if (currentUserContext()['role_code']==='sk_member') $rows=array_values(array_filter($rows,fn($r)=>$r['report_type']==='committee'));
+            foreach ($rows as &$row) { $row['snapshot'] = json_decode($row['snapshot_json'] ?? 'null', true); unset($row['snapshot_json']); }
+            unset($row);
             echo json_encode($rows);
             exit;
 
@@ -120,12 +125,14 @@ try {
             $dateFrom = reportDate(isset($data['date_from']) && is_string($data['date_from']) ? $data['date_from'] : null, 'Date from');
             $dateTo = reportDate(isset($data['date_to']) && is_string($data['date_to']) ? $data['date_to'] : null, 'Date to');
 
+            if ($dateFrom && $dateTo && $dateFrom > $dateTo) throw new DomainException('The start date must not be after the end date.', 400);
             $pdo->beginTransaction();
+            $snapshot = workflowReport($pdo, $reportType, $title, $committeeId, $dateFrom, $dateTo);
             $before = $pdo->query('SELECT id FROM reports')->fetchAll(PDO::FETCH_COLUMN);
             $known = array_fill_keys($before, true);
             $insert = $pdo->prepare(
-                'INSERT INTO reports (title, committee_id, report_type, date_from, date_to)
-                 VALUES (:title, :committee_id, :report_type, :date_from, :date_to)'
+                'INSERT INTO reports (title, committee_id, report_type, date_from, date_to, snapshot_json)
+                 VALUES (:title, :committee_id, :report_type, :date_from, :date_to, :snapshot_json)'
             );
             $insert->execute([
                 'title' => $title,
@@ -133,6 +140,7 @@ try {
                 'report_type' => $reportType,
                 'date_from' => $dateFrom,
                 'date_to' => $dateTo,
+                'snapshot_json' => json_encode($snapshot, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
             ]);
             $rows = $pdo->query('SELECT ' . REPORT_SELECT . ' FROM reports')->fetchAll();
             $created = array_values(array_filter($rows, static fn(array $r): bool => !isset($known[$r['id']])));
@@ -141,6 +149,8 @@ try {
                 reportResponse(['success' => false, 'message' => 'Report was not created safely.'], 500);
             }
             $pdo->commit();
+            $created[0]['snapshot'] = $snapshot;
+            unset($created[0]['snapshot_json']);
             reportResponse(['success' => true, 'message' => 'Report created successfully.', 'data' => $created[0]], 201);
 
         case 'DELETE':
@@ -174,6 +184,9 @@ try {
             header('Allow: GET, POST, DELETE, OPTIONS');
             reportResponse(['success' => false, 'message' => 'Method not allowed.'], 405);
     }
+} catch (DomainException $e) {
+    if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
+    reportResponse(["success"=>false,"message"=>$e->getMessage()], $e->getCode() ?: 400);
 } catch (Throwable $e) {
     if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
         $pdo->rollBack();

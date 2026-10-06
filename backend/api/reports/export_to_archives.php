@@ -74,7 +74,7 @@ try {
     }
 
     $reportStmt = $pdo->prepare(
-        'SELECT id, title, committee_id, report_type, date_from, date_to, created_at
+        'SELECT id, title, committee_id, report_type, date_from, date_to, created_at, snapshot_json
          FROM reports WHERE id = :id LIMIT 1'
     );
     $reportStmt->execute(['id' => $reportId]);
@@ -86,31 +86,22 @@ try {
     $committeeId = $report['committee_id'] ?? null;
     rbacAssertCommitteeAccess($committeeId !== null && $committeeId !== '' ? (string) $committeeId : null);
 
-    if ($committeeId) {
-        $perfStmt = $pdo->prepare(
-            'SELECT id, member_id, committee_id, attendance_rate, task_completion_rate,
-                    performance_score, period, created_at
-             FROM performance WHERE committee_id = :cid'
-        );
-        $perfStmt->execute(['cid' => $committeeId]);
-        $performance = $perfStmt->fetchAll();
-    } else {
-        $performance = $pdo->query(
-            'SELECT id, member_id, committee_id, attendance_rate, task_completion_rate,
-                    performance_score, period, created_at FROM performance'
-        )->fetchAll();
-    }
-
-    $compiled = [
-        'report' => $report,
-        'performance' => $performance,
-        'exported_at' => date('Y-m-d H:i:s'),
-        'system' => 'SK Committee Management System',
-    ];
+    $snapshot = json_decode($report['snapshot_json'] ?? 'null', true);
+    if (!$snapshot) archiveResponse(['success'=>false,'message'=>'This historical report has no saved snapshot. Generate a new report to archive verified figures.'],409);
+    unset($report['snapshot_json']);
+    $compiled = ['report'=>$report,'snapshot'=>$snapshot,'exported_at'=>date('Y-m-d H:i:s'),'system'=>'SP Committee Management System'];
 
     $ref = 'ARCH-' . date('Ymd') . '-' . substr(preg_replace('/[^a-f0-9]/i', '', $reportId), 0, 8);
 
     $pdo->beginTransaction();
+    $lock = $pdo->prepare('SELECT id FROM reports WHERE id=:id FOR UPDATE');
+    $lock->execute(['id'=>$reportId]);
+    $prior = $pdo->prepare('SELECT archive_reference FROM legislative_archives WHERE report_id=:id LIMIT 1');
+    $prior->execute(['id'=>$reportId]);
+    if ($existingReference = $prior->fetchColumn()) {
+        $pdo->commit();
+        archiveResponse(['success'=>true,'message'=>'Report already archived.','archive_reference'=>$existingReference]);
+    }
 
     $insert = $pdo->prepare(
         'INSERT INTO legislative_archives

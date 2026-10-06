@@ -5,7 +5,7 @@ date_default_timezone_set('Asia/Manila');
 
 require_once __DIR__ . '/../backend/config/database.php';
 
-echo "=== Seeding SK Committee Management System Database ===\n";
+echo "=== Seeding SP Committee Management System Database ===\n";
 
 try {
     $pdo = localPdo();
@@ -33,11 +33,11 @@ try {
     echo "1. Seeding Roles...\n";
     $roles = [
         ['code' => 'super_admin', 'label' => 'Super Administrator', 'description' => 'Full system access, settings, and user management'],
-        ['code' => 'sk_chairperson', 'label' => 'SK Chairperson', 'description' => 'Overall youth governance, executive oversight, and committee coordination'],
-        ['code' => 'secretary', 'label' => 'SK Secretary', 'description' => 'Records, minutes, committee assignments, and official notices'],
-        ['code' => 'treasurer', 'label' => 'SK Treasurer', 'description' => 'Budget tracking, financial allocations, and committee monitoring'],
+        ['code' => 'sk_chairperson', 'label' => 'Sanggunian Chairperson', 'description' => 'Council governance, executive oversight, and committee coordination'],
+        ['code' => 'secretary', 'label' => 'Sanggunian Secretary', 'description' => 'Records, minutes, committee assignments, and official notices'],
+        ['code' => 'treasurer', 'label' => 'Treasurer', 'description' => 'Budget tracking, financial allocations, and committee monitoring'],
         ['code' => 'committee_chairperson', 'label' => 'Committee Chairperson', 'description' => 'Leads specific committee projects, tasks, and member assignments'],
-        ['code' => 'sk_member', 'label' => 'SK Member', 'description' => 'Participates in committee deliberations, projects, and task execution'],
+        ['code' => 'sk_member', 'label' => 'Committee Member', 'description' => 'Participates in committee deliberations, projects, and task execution'],
     ];
 
     $roleStmt = $pdo->prepare("INSERT INTO roles (id, code, label, description) VALUES (UUID(), :code, :label, :description) ON DUPLICATE KEY UPDATE label = VALUES(label), description = VALUES(description)");
@@ -118,7 +118,7 @@ try {
                 }
             }
         } elseif ($code === 'sk_member') {
-            $memberPerms = ['dashboard.view', 'tasks.view', 'tasks.update', 'reports.view', 'performance.view'];
+            $memberPerms = ['dashboard.view','members.view','committees.view','assignments.view','workload.view','tasks.view','tasks.update','reports.view','performance.view'];
             foreach ($allPerms as $permId => $pCode) {
                 if (in_array($pCode, $memberPerms)) {
                     $rpStmt->execute(['role_id' => $roleId, 'permission_id' => $permId]);
@@ -211,7 +211,7 @@ try {
             'full_name' => 'Gerald Waniwan',
             'email' => 'waniwangerald13@gmail.com',
             'phone' => '09170001301',
-            'position' => 'SK Chairperson',
+            'position' => 'Sanggunian Chairperson',
             'skills' => json_encode(['Executive Leadership', 'Strategic Planning', 'Policy Formulation', 'Public Relations']),
             'availability' => 'available',
             'workload_score' => 20.00

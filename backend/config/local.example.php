@@ -21,7 +21,7 @@
  *   'COMMITTEE_SMTP_USER' => 'your@gmail.com',
  *   'COMMITTEE_SMTP_PASSWORD' => 'YOUR_APP_PASSWORD',
  *   'COMMITTEE_SMTP_FROM' => 'your@gmail.com',
- *   'COMMITTEE_SMTP_FROM_NAME' => 'SK Committee System',
+ *   'COMMITTEE_SMTP_FROM_NAME' => 'SP Committee System',
  *   'COMMITTEE_SMTP_SECURE' => 'tls',
  *
  *   'COMMITTEE_GEMINI_API_KEY' => 'YOUR_GEMINI_KEY',

@@ -25,13 +25,7 @@ import {
 import { useAction, useResource } from "@/lib/hooks"
 import { can, request, save } from "@/lib/api"
 import { dateLabel, localDate } from "@/lib/calculations"
-import {
-  buildReport,
-  downloadCsv,
-  printDocument,
-  type ReportDocument,
-  type ReportType,
-} from "@/lib/reports"
+import { downloadCsv, printDocument, type ReportDocument, type ReportType } from "@/lib/reports"
 import type { ApiResult } from "@/lib/types"
 export default function Reports() {
   const members = useResource("members"),
@@ -73,41 +67,33 @@ export default function Reports() {
       setValidation(new Error("The start date must not be after the end date."))
       return
     }
-    const required =
-      type === "committee"
-        ? [committees]
-        : type === "full"
-          ? [committees, members, tasks, assignments]
-          : [members, tasks]
-    if (required.some((query) => !query.data)) {
-      setValidation(
-        new Error(
-          "The data required for this report is unavailable. Check your permissions or retry loading the page.",
-        ),
-      )
-      return
-    }
     setValidation(null)
-    const report = buildReport(
-      type,
-      {
-        committees: committees.data || [],
-        members: members.data || [],
-        tasks: tasks.data || [],
-        assignments: assignments.data || [],
-      },
-      committee,
-    )
+    const title = {
+      committee: "Committee Report",
+      member: "Member Report",
+      performance: "Performance Report",
+      workload: "Workload Distribution Report",
+      full: "Full System Report",
+    }[type]
     try {
       const result = await creation.run({
-        title: report.title,
+        title,
         report_type: type,
         committee_id: committee || null,
         date_from: from || null,
         date_to: to || null,
       })
       if (result) {
-        setPreview(report)
+        const snapshot = (result.data as { snapshot?: ReportDocument } | undefined)?.snapshot
+        if (!snapshot || !Array.isArray(snapshot.headers) || !Array.isArray(snapshot.rows)) {
+          setValidation(
+            new Error(
+              "The report was recorded but its saved figures are unavailable. Reload report history to retrieve it.",
+            ),
+          )
+          return
+        }
+        setPreview(snapshot)
         notice("Report generated and recorded in history.")
       }
     } catch {}
@@ -162,8 +148,9 @@ export default function Reports() {
                 <Field label="Reporting period · To" type="date" value={to} onChange={setTo} />
               </div>
               <p className="tw:mt-3 tw:text-xs tw:text-muted-foreground">
-                Reporting dates label the saved report. Figures reflect current accessible records;
-                committee reports use the selected committee.
+                Dates select tasks created in the period and attendance reporting months. Committee
+                reports use issuance dates. Rosters reflect the generation date; saved figures
+                remain unchanged.
               </p>
               <ErrorNotice error={validation || creation.error} />
               <div className="ui-actions tw:mt-5">
@@ -335,28 +322,43 @@ export default function Reports() {
                   {
                     id: "actions",
                     header: "Actions",
-                    cell: ({ row }) =>
-                      canArchive && (
-                        <ActionButton
-                          variant="ghost"
-                          size="sm"
-                          busy={archive.isPending}
-                          onClick={() => {
-                            void archive
-                              .run(row.original.id)
-                              .then((result) => {
-                                if (result)
-                                  notice(
-                                    `Report archived${result.archive_reference ? ` · ${result.archive_reference}` : ""}.`,
-                                  )
-                              })
-                              .catch(() => {})
-                          }}
-                        >
-                          <Archive size={14} />
-                          Archive
-                        </ActionButton>
-                      ),
+                    cell: ({ row }) => (
+                      <div className="ui-actions">
+                        {row.original.snapshot && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setPreview(row.original.snapshot!)
+                              print(row.original.title, row.original.snapshot!)
+                            }}
+                          >
+                            View / print
+                          </Button>
+                        )}
+                        {canArchive && (
+                          <ActionButton
+                            variant="ghost"
+                            size="sm"
+                            busy={archive.isPending}
+                            onClick={() => {
+                              void archive
+                                .run(row.original.id)
+                                .then((result) => {
+                                  if (result)
+                                    notice(
+                                      `Report archived${result.archive_reference ? ` · ${result.archive_reference}` : ""}.`,
+                                    )
+                                })
+                                .catch(() => {})
+                            }}
+                          >
+                            <Archive size={14} />
+                            Archive
+                          </ActionButton>
+                        )}
+                      </div>
+                    ),
                   },
                 ]}
                 searchLabel="Search report history…"

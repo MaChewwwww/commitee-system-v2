@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { Users, UserCheck, Clock3, UserRound } from "lucide-react"
 import { ManagementPage } from "@/components/management"
+import { AttendanceRecords } from "@/components/attendance-records"
+import { pendingCount } from "@/lib/calculations"
 import {
   Person,
   ScoreBar,
@@ -12,14 +14,16 @@ import {
 } from "@/components/shared"
 import { useResource } from "@/lib/hooks"
 const positions = options([
-  "SK Chairman",
-  "SK Kagawad",
-  "SK Secretary",
-  "SK Treasurer",
-  "SK Member",
+  "Presiding Officer",
+  "City Councilor",
+  "Municipal Councilor",
+  "Sanggunian Secretary",
+  "Committee Staff",
+  "Committee Member",
 ])
 export default function Members() {
   const members = useResource("members")
+  const tasks = useResource("tasks")
   const [availability, setAvailability] = useState("")
   return (
     <ManagementPage
@@ -33,11 +37,18 @@ export default function Members() {
         skills: "",
         availability: "available",
       }}
-      fields={() => [
+      fields={(_, values) => [
         { name: "full_name", label: "Full name", required: true },
         { name: "email", label: "Email address", type: "email" },
         { name: "phone", label: "Phone number", type: "tel" },
-        { name: "position", label: "Position", items: positions },
+        {
+          name: "position",
+          label: "Position",
+          items:
+            values?.position && !positions.some((p) => p.value === values.position)
+              ? [...positions, { value: values.position, label: values.position }]
+              : positions,
+        },
         { name: "skills", label: "Skills", placeholder: "Leadership, communication…" },
         {
           name: "availability",
@@ -74,12 +85,15 @@ export default function Members() {
         {
           accessorKey: "workload_score",
           header: "Workload",
-          cell: ({ row }) => (
-            <ScoreBar
-              value={Number(row.original.workload_score || 0)}
-              label={`${row.original.full_name} workload`}
-            />
-          ),
+          cell: ({ row }) =>
+            !tasks.data ? (
+              <span>Not available</span>
+            ) : (
+              <ScoreBar
+                value={tasks.data ? pendingCount(tasks.data, row.original.id) * 20 : 0}
+                label={`${row.original.full_name} workload`}
+              />
+            ),
         },
       ]}
       filter={
@@ -95,37 +109,42 @@ export default function Members() {
         availability ? data.filter((member) => member.availability === availability) : data
       }
       before={
-        <StatGrid>
-          <StatCard
-            label="Team members"
-            value={members.data?.length ?? "—"}
-            hint="Your community of contributors"
-            icon={<Users size={16} />}
-          />
-          <StatCard
-            label="Available"
-            value={members.data?.filter((m) => m.availability === "available").length ?? "—"}
-            hint="Ready for new opportunities"
-            icon={<UserCheck size={16} />}
-            tone="green"
-          />
-          <StatCard
-            label="Busy"
-            value={members.data?.filter((m) => m.availability === "busy").length ?? "—"}
-            hint="Focused on current priorities"
-            icon={<Clock3 size={16} />}
-            tone="gold"
-          />
-          <StatCard
-            label="Positions"
-            value={
-              members.data ? new Set(members.data.map((m) => m.position).filter(Boolean)).size : "—"
-            }
-            hint="Different strengths, shared purpose"
-            icon={<UserRound size={16} />}
-            tone="purple"
-          />
-        </StatGrid>
+        <>
+          <StatGrid>
+            <StatCard
+              label="Team members"
+              value={members.data?.length ?? "—"}
+              hint="Your community of contributors"
+              icon={<Users size={16} />}
+            />
+            <StatCard
+              label="Available"
+              value={members.data?.filter((m) => m.availability === "available").length ?? "—"}
+              hint="Ready for new opportunities"
+              icon={<UserCheck size={16} />}
+              tone="green"
+            />
+            <StatCard
+              label="Busy"
+              value={members.data?.filter((m) => m.availability === "busy").length ?? "—"}
+              hint="Focused on current priorities"
+              icon={<Clock3 size={16} />}
+              tone="gold"
+            />
+            <StatCard
+              label="Positions"
+              value={
+                members.data
+                  ? new Set(members.data.map((m) => m.position).filter(Boolean)).size
+                  : "—"
+              }
+              hint="Different strengths, shared purpose"
+              icon={<UserRound size={16} />}
+              tone="purple"
+            />
+          </StatGrid>
+          <AttendanceRecords />
+        </>
       }
     />
   )

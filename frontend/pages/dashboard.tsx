@@ -25,7 +25,7 @@ export default function Dashboard() {
   const members = useResource("members"),
     committees = useResource("committees"),
     tasks = useResource("tasks")
-  const pending = tasks.data?.filter((task) => task.status === "pending").length
+  const pending = tasks.data?.filter((task) => task.status !== "completed").length
   const completed = tasks.data?.filter((task) => task.status === "completed").length
   const nav = window.APP_CONFIG.navigation
   const link = (key: string) => nav.find((item) => item.key === key)?.href || "#"
@@ -157,7 +157,7 @@ export default function Dashboard() {
             {members.data?.length ? (
               members.data.slice(0, 4).map((member) => (
                 <div className="ui-list-row" key={member.id}>
-                  <Person name={member.full_name} detail={member.position || "SK member"} />
+                  <Person name={member.full_name} detail={member.position || "Committee member"} />
                   <StatusBadge value={member.availability} />
                 </div>
               ))

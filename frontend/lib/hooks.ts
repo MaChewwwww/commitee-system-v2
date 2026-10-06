@@ -7,7 +7,15 @@ export function useResource<K extends Resource>(resource: K, enabled = true) {
     queryKey: [resource],
     queryFn: ({ signal }) => list(resource, signal),
     enabled:
-      enabled && can(window.APP_CONFIG, resource === "roles" ? "users.view" : `${resource}.view`),
+      enabled &&
+      can(
+        window.APP_CONFIG,
+        resource === "roles"
+          ? "users.view"
+          : resource === "penalties"
+            ? "jurisdictions.view"
+            : `${resource}.view`,
+      ),
     staleTime: 30_000,
     retry: false,
   })

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Sparkles, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ManagementPage } from "@/components/management"
+import { CommitteeTasks } from "@/components/committee-tasks"
 import {
   ActionButton,
   AiPanel,
@@ -16,7 +17,7 @@ import {
 } from "@/components/shared"
 import { useResource, useAction } from "@/lib/hooks"
 import { can, request, save } from "@/lib/api"
-import { dateLabel, pendingCount } from "@/lib/calculations"
+import { dateLabel, pendingCount, committeeOpen } from "@/lib/calculations"
 import type { Recommendation, RecommendationResult } from "@/lib/types"
 export default function Assignments() {
   const members = useResource("members"),
@@ -46,7 +47,9 @@ export default function Assignments() {
       }),
     ["assignments"],
   )
-  const committeeItems = (committees.data || []).map((c) => ({ value: c.id, label: c.name }))
+  const committeeItems = (committees.data || [])
+    .filter(committeeOpen)
+    .map((c) => ({ value: c.id, label: c.name }))
   const memberItems = (members.data || []).map((m) => ({ value: m.id, label: m.full_name }))
   function criterion(name: keyof typeof criteria, value: string) {
     setCriteria((previous) => ({ ...previous, [name]: value }))
@@ -119,11 +122,12 @@ export default function Assignments() {
             value={criteria.preferred_position}
             onChange={(value) => criterion("preferred_position", value)}
             items={options([
-              "SK Chairman",
-              "SK Kagawad",
-              "SK Secretary",
-              "SK Treasurer",
-              "SK Member",
+              "Presiding Officer",
+              "City Councilor",
+              "Municipal Councilor",
+              "Sanggunian Secretary",
+              "Committee Staff",
+              "Committee Member",
             ])}
             placeholder="Any position"
           />
@@ -219,51 +223,70 @@ export default function Assignments() {
     </AiPanel>
   )
   return (
-    <ManagementPage
-      resource="assignments"
-      singular="Assignment"
-      defaults={{ member_id: "", committee_id: "", role: "Member" }}
-      queries={[members, committees]}
-      before={panel}
-      fields={() => [
-        { name: "member_id", label: "Member", required: true, items: memberItems },
-        { name: "committee_id", label: "Committee", required: true, items: committeeItems },
-        {
-          name: "role",
-          label: "Committee role",
-          required: true,
-          items: options(["Member", "Chairperson", "Vice Chairperson", "Secretary"]),
-        },
-      ]}
-      columns={[
-        {
-          accessorFn: (row) =>
-            members.data?.find((member) => member.id === row.member_id)?.full_name ||
-            "Unknown member",
-          id: "member",
-          header: "Member",
-          cell: ({ row }) => {
-            const member = members.data?.find((member) => member.id === row.original.member_id)
-            return <Person name={member?.full_name || "Unknown member"} detail={member?.position} />
+    <>
+      <ManagementPage
+        resource="assignments"
+        singular="Assignment"
+        defaults={{ member_id: "", committee_id: "", role: "Member" }}
+        queries={[members, committees]}
+        before={panel}
+        fields={(editing) => [
+          {
+            name: "member_id",
+            label: "Member",
+            required: true,
+            items: memberItems,
+            disabled: editing,
           },
-        },
-        {
-          accessorFn: (row) =>
-            committees.data?.find((c) => c.id === row.committee_id)?.name || "Unknown committee",
-          id: "committee",
-          header: "Committee",
-        },
-        {
-          accessorKey: "role",
-          header: "Role",
-          cell: ({ row }) => <StatusBadge value={row.original.role} />,
-        },
-        {
-          accessorKey: "assigned_at",
-          header: "Assigned",
-          cell: ({ row }) => dateLabel(row.original.assigned_at),
-        },
-      ]}
-    />
+          {
+            name: "committee_id",
+            label: "Committee",
+            required: true,
+            items: editing
+              ? (committees.data || []).map((c) => ({ value: c.id, label: c.name }))
+              : committeeItems,
+            disabled: editing,
+          },
+          {
+            name: "role",
+            label: "Committee role",
+            required: true,
+            items: options(["Member", "Chairperson", "Vice Chairperson", "Secretary"]),
+          },
+        ]}
+        columns={[
+          {
+            accessorFn: (row) =>
+              members.data?.find((member) => member.id === row.member_id)?.full_name ||
+              "Unknown member",
+            id: "member",
+            header: "Member",
+            cell: ({ row }) => {
+              const member = members.data?.find((member) => member.id === row.original.member_id)
+              return (
+                <Person name={member?.full_name || "Unknown member"} detail={member?.position} />
+              )
+            },
+          },
+          {
+            accessorFn: (row) =>
+              committees.data?.find((c) => c.id === row.committee_id)?.name || "Unknown committee",
+            id: "committee",
+            header: "Committee",
+          },
+          {
+            accessorKey: "role",
+            header: "Role",
+            cell: ({ row }) => <StatusBadge value={row.original.role} />,
+          },
+          {
+            accessorKey: "assigned_at",
+            header: "Assigned",
+            cell: ({ row }) => dateLabel(row.original.assigned_at),
+          },
+        ]}
+      />
+      <CommitteeTasks />
+    </>
   )
 }

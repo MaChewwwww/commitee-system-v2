@@ -1,9 +1,9 @@
 import { r as e } from "./rolldown-runtime-B0aSnxlc.js";
 import { t } from "./react-B4u1yd7E.js";
 import { h as n, n as r } from "./api-DVPVP-g0.js";
-import { S as i, n as a, v as o, x as s } from "./hooks-CGjnItOC.js";
-import { t as c } from "./management-B_sQlv9E.js";
-import { t as l } from "./calculations-Pe71IOFb.js";
+import { S as i, n as a, v as o, x as s } from "./hooks-BlRndFBy.js";
+import { t as c } from "./management-Z1Cs2zh-.js";
+import { n as l } from "./calculations-ZvWekKcJ.js";
 //#region frontend/pages/users.tsx
 var u = /* @__PURE__ */ e(t(), 1), d = n();
 function f() {
@@ -40,6 +40,7 @@ function f() {
 			{
 				name: "member_id",
 				label: "Linked member",
+				required: ["sk_member", "committee_chairperson"].includes(i?.role_code || ""),
 				items: (t.data || []).map((e) => ({
 					value: e.id,
 					label: e.full_name

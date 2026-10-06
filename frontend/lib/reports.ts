@@ -1,5 +1,5 @@
-import type { Assignment, Committee, Member, Task } from "./types"
-import { dateLabel, pendingCount, grade, workloadStatus } from "./calculations"
+import type { Assignment, Committee, Member, Task, PerformanceRecord } from "./types"
+import { dateLabel, pendingCount, performanceScores, workloadStatus } from "./calculations"
 export type ReportType = "committee" | "member" | "performance" | "workload" | "full"
 export interface ReportDocument {
   title: string
@@ -8,7 +8,13 @@ export interface ReportDocument {
 }
 export function buildReport(
   type: ReportType,
-  data: { committees: Committee[]; members: Member[]; tasks: Task[]; assignments: Assignment[] },
+  data: {
+    committees: Committee[]
+    members: Member[]
+    tasks: Task[]
+    assignments: Assignment[]
+    attendance?: PerformanceRecord[]
+  },
   committeeId = "",
 ): ReportDocument {
   const { committees, members, tasks, assignments } = data
@@ -35,13 +41,15 @@ export function buildReport(
   if (type === "performance")
     return {
       title: "Performance Report",
-      headers: ["Member", "Position", "Total Tasks", "Completed", "Rate", "Grade"],
-      rows: members.map((m) => {
-        const own = tasks.filter((t) => t.member_id === m.id),
-          completed = own.filter((t) => t.status === "completed").length,
-          rate = own.length ? Math.round((completed / own.length) * 100) : 0
-        return [m.full_name, m.position || "—", own.length, completed, `${rate}%`, grade(rate)]
-      }),
+      headers: ["Member", "Position", "Total Tasks", "Completed", "Final score", "Grade"],
+      rows: performanceScores(members, tasks, data.attendance || []).map((m) => [
+        m.full_name,
+        m.position || "—",
+        m.total_tasks,
+        m.completed_tasks,
+        `${m.final_score}%`,
+        m.grade,
+      ]),
     }
   if (type === "workload")
     return {
@@ -62,10 +70,10 @@ export function buildReport(
     title: "Full System Report",
     headers: ["Category", "Details", "Count"],
     rows: [
-      ["Total Committees", "Active SK Committees", committees.length],
-      ["Total Members", "Registered SK Members", members.length],
+      ["Total Committees", "Active SP Committees", committees.length],
+      ["Total Members", "Registered council and committee members", members.length],
       ["Total Tasks", "All Tasks", tasks.length],
-      ["Pending Tasks", "Not Yet Completed", tasks.filter((t) => t.status === "pending").length],
+      ["Pending Tasks", "Not Yet Completed", tasks.filter((t) => t.status !== "completed").length],
       ["Completed Tasks", "Finished Tasks", tasks.filter((t) => t.status === "completed").length],
       ["Total Assignments", "Member-Committee", assignments.length],
       [

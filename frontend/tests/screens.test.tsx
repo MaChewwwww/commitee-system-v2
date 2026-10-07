@@ -286,22 +286,48 @@ describe("forms and authorization", () => {
     const dialog = screen.getByRole("dialog")
     expect(within(dialog).getByText("Alex Reyes")).toBeInTheDocument()
     expect(within(dialog).getByText("Barangay Poblacion · Education")).toBeInTheDocument()
+    expect(within(dialog).queryByText("Establishing reference")).not.toBeInTheDocument()
+    expect(within(dialog).queryByText("Effective until")).not.toBeInTheDocument()
     expect(within(dialog).queryByRole("button", { name: "Save changes" })).not.toBeInTheDocument()
     expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === "GET")).toBe(
       true,
     )
   })
 
-  it("accepts authority-based committee names without a jurisdiction dependency and shows their coverage while editing", async () => {
+  it("selects jurisdiction-linked committee names and shows their coverage while editing", async () => {
     mockApi()
     mount(Committees, "committees")
     await userEvent.click(await screen.findByRole("button", { name: "Edit Committee" }))
-    expect(screen.getByRole("textbox", { name: /Committee name/ })).toHaveValue("Youth Development")
-    expect(screen.queryByRole("combobox", { name: /Committee name/ })).not.toBeInTheDocument()
+    expect(screen.getByRole("combobox", { name: /Committee name/ })).toHaveTextContent(
+      "Youth Development",
+    )
+    expect(screen.queryByRole("textbox", { name: /Committee name/ })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Establishing reference/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Effective until/)).not.toBeInTheDocument()
     expect(screen.getByText("Barangay Poblacion · Education")).toBeInTheDocument()
     expect(await screen.findByRole("combobox", { name: "Role for Alex Reyes" })).toHaveTextContent(
       "Chairperson",
     )
+  })
+
+  it("saves a committee selected from linked names without the removed fields", async () => {
+    const fetcher = mockApi()
+    mount(Committees, "committees")
+    await screen.findByRole("button", { name: "Edit Committee" })
+    await userEvent.click(screen.getByRole("button", { name: "Add committee" }))
+    await choose("Committee name", "Youth Development")
+    expect(screen.queryByLabelText(/Establishing reference/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Effective until/)).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole("button", { name: "Save changes" }))
+    await waitFor(() => {
+      const call = fetcher.mock.calls.find(
+        ([url, init]) => String(url).endsWith("committees/index.php") && init?.method === "POST",
+      )
+      const body = JSON.parse(String(call?.[1]?.body))
+      expect(body).toMatchObject({ name: "Youth Development", type: "Standing" })
+      expect(body).not.toHaveProperty("establishing_reference")
+      expect(body).not.toHaveProperty("effective_until")
+    })
   })
 
   it("adds, updates, and confirms removal of members from the committee edit dialog", async () => {

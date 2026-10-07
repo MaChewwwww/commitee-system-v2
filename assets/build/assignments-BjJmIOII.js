@@ -2,7 +2,7 @@ import { r as e } from "./rolldown-runtime-B0aSnxlc.js";
 import { t } from "./react-B4u1yd7E.js";
 import { a as n, h as r, n as i, o as a, s as o } from "./api-DVPVP-g0.js";
 import { C as s, L as c, R as l, S as u, U as d, _ as f, a as p, d as m, h, l as g, m as _, n as v, o as y, r as b, s as x, t as S, u as C, x as w } from "./hooks-BlRndFBy.js";
-import { t as T } from "./management-Z1Cs2zh-.js";
+import { t as T } from "./management-PuJREc6K.js";
 import { i as E, n as D, o as O, t as k } from "./calculations-ZvWekKcJ.js";
 //#region frontend/components/committee-tasks.tsx
 var A = /* @__PURE__ */ e(t(), 1), j = r();

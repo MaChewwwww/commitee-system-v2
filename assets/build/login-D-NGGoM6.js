@@ -2,7 +2,7 @@ import { r as e } from "./rolldown-runtime-B0aSnxlc.js";
 import { t } from "./react-B4u1yd7E.js";
 import { a as n, h as r, l as i, s as a } from "./api-DVPVP-g0.js";
 import { C as o, I as s, R as c, l, r as u, t as d, u as f } from "./hooks-BlRndFBy.js";
-import { n as p, r as m } from "./app-DpC2qKu3.js";
+import { n as p, r as m } from "./app-BANjibti.js";
 //#region node_modules/lucide-react/dist/esm/icons/arrow-left.mjs
 var h = {
 	name: "arrow-left",

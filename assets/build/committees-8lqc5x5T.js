@@ -2,8 +2,8 @@ import { r as e } from "./rolldown-runtime-B0aSnxlc.js";
 import { t } from "./react-B4u1yd7E.js";
 import { h as n, i as r, l as i, n as a, o, s } from "./api-DVPVP-g0.js";
 import { A as c, B as l, C as u, M as d, N as f, P as p, S as m, U as h, V as g, b as _, h as v, j as y, l as b, n as x, o as S, t as C, u as w, v as T, x as E, y as D, z as O } from "./hooks-BlRndFBy.js";
-import { n as k, t as A } from "./management-Z1Cs2zh-.js";
-import { n as j, o as M } from "./app-DpC2qKu3.js";
+import { n as k, t as A } from "./management-PuJREc6K.js";
+import { n as j, o as M } from "./app-BANjibti.js";
 import { n as N } from "./calculations-ZvWekKcJ.js";
 //#region node_modules/lucide-react/dist/esm/icons/lightbulb.mjs
 var P = {
@@ -281,7 +281,7 @@ var K = m([
 	"Advisory"
 ]);
 function q() {
-	let e = x("committees"), t = x("jurisdictions"), n = x("assignments"), r = x("members"), [i, o] = (0, H.useState)(), s = new Set((t.data || []).map((e) => e.committee_id)), [l, u] = (0, H.useState)("");
+	let e = x("committees"), t = x("jurisdictions"), n = x("assignments"), r = x("members"), [i, o] = (0, H.useState)(), s = new Set((t.data || []).map((e) => e.committee_id)), l = (e.data || []).filter((e) => s.has(e.id)).map((e) => e.name), [u, m] = (0, H.useState)("");
 	return /* @__PURE__ */ (0, U.jsxs)(U.Fragment, { children: [/* @__PURE__ */ (0, U.jsx)(A, {
 		resource: "committees",
 		singular: "Committee",
@@ -322,8 +322,6 @@ function q() {
 			type: "Standing",
 			issued_date: "",
 			issued_by: "",
-			establishing_reference: "",
-			effective_until: "",
 			purpose: "",
 			mandate: "",
 			qualification_requirements: ""
@@ -334,23 +332,18 @@ function q() {
 				label: "Committee name",
 				fullWidth: !0,
 				required: !0,
-				placeholder: "Name from the council’s committee-creation record"
-			},
-			{
-				name: "establishing_reference",
-				label: "Establishing reference",
-				placeholder: "Resolution, ordinance, order, or rules of procedure",
-				fullWidth: !0
-			},
-			{
-				name: "effective_until",
-				label: "Effective until",
-				type: "date"
+				items: [.../* @__PURE__ */ new Set([...l, ...t ? [t.name] : []])].map((e) => ({
+					value: e,
+					label: e
+				})),
+				disabled: !a(window.APP_CONFIG, "jurisdictions.view"),
+				placeholder: "Select a committee linked to Jurisdiction"
 			},
 			{
 				name: "purpose",
 				label: "Purpose",
-				type: "textarea"
+				type: "textarea",
+				fullWidth: !0
 			},
 			{
 				name: "issued_date",
@@ -426,12 +419,12 @@ function q() {
 		],
 		filter: /* @__PURE__ */ (0, U.jsx)(T, {
 			label: "Filter committee type",
-			value: l,
-			onChange: u,
+			value: u,
+			onChange: m,
 			items: K,
 			placeholder: "All committee types"
 		}),
-		filteredData: (e) => l ? e.filter((e) => e.type === l) : e,
+		filteredData: (e) => u ? e.filter((e) => e.type === u) : e,
 		before: /* @__PURE__ */ (0, U.jsx)(_, { children: [
 			{
 				label: "All committees",
@@ -491,8 +484,6 @@ function q() {
 						children: [
 							["Date issued", i.issued_date ? N(i.issued_date) : "Not specified"],
 							["Issued by", i.issued_by],
-							["Establishing reference", i.establishing_reference],
-							["Effective until", i.effective_until ? N(i.effective_until) : "No end date recorded"],
 							["Purpose", i.purpose],
 							["Mandate", i.mandate],
 							["Qualification requirements", i.qualification_requirements]

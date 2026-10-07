@@ -55,7 +55,6 @@ export interface Committee extends Entity {
   name: string
   issued_date?: string | null
   issued_by?: string | null
-  establishing_reference?: string | null
   effective_until?: string | null
   type?: string
   purpose?: string

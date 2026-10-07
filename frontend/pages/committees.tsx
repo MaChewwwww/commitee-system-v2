@@ -23,6 +23,7 @@ export default function Committees() {
   const members = useResource("members")
   const [viewing, setViewing] = useState<Committee>()
   const linkedIds = new Set((jurisdictions.data || []).map((j) => j.committee_id))
+  const linkedNames = (committees.data || []).filter((c) => linkedIds.has(c.id)).map((c) => c.name)
   const [committeeType, setCommitteeType] = useState("")
   return (
     <>
@@ -70,8 +71,6 @@ export default function Committees() {
           type: "Standing",
           issued_date: "",
           issued_by: "",
-          establishing_reference: "",
-          effective_until: "",
           purpose: "",
           mandate: "",
           qualification_requirements: "",
@@ -82,16 +81,14 @@ export default function Committees() {
             label: "Committee name",
             fullWidth: true,
             required: true,
-            placeholder: "Name from the council’s committee-creation record",
+            items: [...new Set([...linkedNames, ...(row ? [row.name] : [])])].map((name) => ({
+              value: name,
+              label: name,
+            })),
+            disabled: !can(window.APP_CONFIG, "jurisdictions.view"),
+            placeholder: "Select a committee linked to Jurisdiction",
           },
-          {
-            name: "establishing_reference",
-            label: "Establishing reference",
-            placeholder: "Resolution, ordinance, order, or rules of procedure",
-            fullWidth: true,
-          },
-          { name: "effective_until", label: "Effective until", type: "date" },
-          { name: "purpose", label: "Purpose", type: "textarea" },
+          { name: "purpose", label: "Purpose", type: "textarea", fullWidth: true },
           { name: "issued_date", label: "Date issued", type: "date" },
           {
             name: "issued_by",
@@ -245,13 +242,6 @@ export default function Committees() {
                     viewing.issued_date ? dateLabel(viewing.issued_date) : "Not specified",
                   ],
                   ["Issued by", viewing.issued_by],
-                  ["Establishing reference", viewing.establishing_reference],
-                  [
-                    "Effective until",
-                    viewing.effective_until
-                      ? dateLabel(viewing.effective_until)
-                      : "No end date recorded",
-                  ],
                   ["Purpose", viewing.purpose],
                   ["Mandate", viewing.mandate],
                   ["Qualification requirements", viewing.qualification_requirements],

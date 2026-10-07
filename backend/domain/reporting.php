@@ -50,8 +50,8 @@ function workflowReport(PDO $pdo, string $type, string $title, ?string $committe
     $scores = workflowScores($members,$tasks,$attendance);
     switch ($type) {
         case 'committee':
-            $headers=['Name','Committee Type','Issued date','Issued by','Authority reference','Effective until'];
-            $rows=array_map(fn($c)=>[$c['name'],$c['type'],$c['issued_date']??'Not recorded',$c['issued_by']??'Not recorded',$c['establishing_reference']??'Not recorded',$c['effective_until']??'No end date recorded'],array_values(array_filter($committees,fn($c)=>(!$from || substr($c['issued_date']??$c['created_at'],0,10)>=$from)&&(!$to || substr($c['issued_date']??$c['created_at'],0,10)<=$to))));
+            $headers=['Name','Committee Type','Issued date','Issued by'];
+            $rows=array_map(fn($c)=>[$c['name'],$c['type'],$c['issued_date']??'Not recorded',$c['issued_by']??'Not recorded'],array_values(array_filter($committees,fn($c)=>(!$from || substr($c['issued_date']??$c['created_at'],0,10)>=$from)&&(!$to || substr($c['issued_date']??$c['created_at'],0,10)<=$to))));
             break;
         case 'member':
             $headers=['Name','Position','Email','Availability','Open tasks'];

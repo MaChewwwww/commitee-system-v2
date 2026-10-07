@@ -1,7 +1,7 @@
 import { h as e, n as t } from "./api-DVPVP-g0.js";
 import { V as n, _ as r, b as i, c as a, h as o, m as s, n as c, x as l, y as u, z as d } from "./hooks-BlRndFBy.js";
 import { t as f } from "./clock-3-DqrQmDOW.js";
-import { a as p, i as m, n as h, o as g, r as _, s as v } from "./app-DpC2qKu3.js";
+import { a as p, i as m, n as h, o as g, r as _, s as v } from "./app-BANjibti.js";
 //#region frontend/components/charts.tsx
 var y = e();
 function b({ segments: e, label: t }) {

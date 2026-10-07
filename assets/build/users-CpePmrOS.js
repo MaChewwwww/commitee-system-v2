@@ -2,7 +2,7 @@ import { r as e } from "./rolldown-runtime-B0aSnxlc.js";
 import { t } from "./react-B4u1yd7E.js";
 import { h as n, n as r } from "./api-DVPVP-g0.js";
 import { S as i, n as a, v as o, x as s } from "./hooks-BlRndFBy.js";
-import { t as c } from "./management-PuJREc6K.js";
+import { t as c } from "./management-BMYVxRJp.js";
 import { n as l } from "./calculations-ZvWekKcJ.js";
 //#region frontend/pages/users.tsx
 var u = /* @__PURE__ */ e(t(), 1), d = n();

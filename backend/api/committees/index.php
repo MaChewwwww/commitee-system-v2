@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../domain/lifecycle.php';
 corsHeaders();
 ob_clean();
 
-const COMMITTEE_SELECT = 'id, name, type, issued_date, issued_by, effective_until, purpose, mandate, qualification_requirements, status, created_at';
+const COMMITTEE_SELECT = 'id, name, type, issued_date, issued_by, effective_until, purpose, qualification_requirements, status, created_at';
 const COMMITTEE_UUID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
 
 function committeeResponse(array $payload, int $status = 200): void {
@@ -78,7 +78,6 @@ function validatedCommittee(array $data, ?string $legacyType = null): array {
         'issued_date' => $issuedDate,
         'issued_by' => committeeText($data, 'issued_by', 255),
         'purpose' => committeeText($data, 'purpose', 65535),
-        'mandate' => committeeText($data, 'mandate', 65535),
         'qualification_requirements' => committeeText($data, 'qualification_requirements', 65535),
         'status' => $status,
     ];
@@ -147,8 +146,8 @@ try {
             $knownIds = array_fill_keys($before, true);
 
             $insert = $pdo->prepare(
-                'INSERT INTO committees (name, type, issued_date, issued_by, purpose, mandate, qualification_requirements, status) '
-                . 'VALUES (:name, :type, :issued_date, :issued_by, :purpose, :mandate, :qualification_requirements, :status)'
+                'INSERT INTO committees (name, type, issued_date, issued_by, purpose, qualification_requirements, status) '
+                . 'VALUES (:name, :type, :issued_date, :issued_by, :purpose, :qualification_requirements, :status)'
             );
             $insert->execute($committee);
 
@@ -177,7 +176,7 @@ try {
 
             $pdo->beginTransaction();
             $update = $pdo->prepare(
-                'UPDATE committees SET name = :name, type = :type, issued_date = :issued_date, issued_by = :issued_by, purpose = :purpose, mandate = :mandate, '
+                'UPDATE committees SET name = :name, type = :type, issued_date = :issued_date, issued_by = :issued_by, purpose = :purpose, '
                 . 'qualification_requirements = :qualification_requirements, status = :status WHERE id = :id'
             );
             $update->execute($committee + ['id' => $id]);

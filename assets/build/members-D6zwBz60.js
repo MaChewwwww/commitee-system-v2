@@ -3,8 +3,8 @@ import { t } from "./react-B4u1yd7E.js";
 import { h as n, l as r, n as i, o as a, s as o } from "./api-DVPVP-g0.js";
 import { C as s, S as c, b as l, d as u, g as d, m as f, n as p, t as m, u as h, v as g, x as _, y as v } from "./hooks-BlRndFBy.js";
 import { t as y } from "./clock-3-DqrQmDOW.js";
-import { t as b } from "./management-PuJREc6K.js";
-import { n as x } from "./app-BANjibti.js";
+import { t as b } from "./management-BMYVxRJp.js";
+import { n as x } from "./app-BS02kWBW.js";
 import { i as S, r as C } from "./calculations-ZvWekKcJ.js";
 //#region node_modules/lucide-react/dist/esm/icons/user-check.mjs
 var w = {

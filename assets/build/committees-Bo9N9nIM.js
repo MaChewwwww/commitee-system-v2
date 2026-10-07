@@ -2,8 +2,8 @@ import { r as e } from "./rolldown-runtime-B0aSnxlc.js";
 import { t } from "./react-B4u1yd7E.js";
 import { h as n, i as r, l as i, n as a, o, s } from "./api-DVPVP-g0.js";
 import { A as c, B as l, C as u, M as d, N as f, P as p, S as m, U as h, V as g, b as _, h as v, j as y, l as b, n as x, o as S, t as C, u as w, v as T, x as E, y as D, z as O } from "./hooks-BlRndFBy.js";
-import { n as k, t as A } from "./management-PuJREc6K.js";
-import { n as j, o as M } from "./app-BANjibti.js";
+import { n as k, t as A } from "./management-BMYVxRJp.js";
+import { n as j, o as M } from "./app-BS02kWBW.js";
 import { n as N } from "./calculations-ZvWekKcJ.js";
 //#region node_modules/lucide-react/dist/esm/icons/lightbulb.mjs
 var P = {
@@ -323,7 +323,6 @@ function q() {
 			issued_date: "",
 			issued_by: "",
 			purpose: "",
-			mandate: "",
 			qualification_requirements: ""
 		},
 		fields: (e, t) => [
@@ -354,11 +353,6 @@ function q() {
 				name: "issued_by",
 				label: "Issued by",
 				placeholder: "Name of issuing person or authority"
-			},
-			{
-				name: "mandate",
-				label: "Mandate",
-				type: "textarea"
 			},
 			{
 				name: "qualification_requirements",
@@ -485,7 +479,6 @@ function q() {
 							["Date issued", i.issued_date ? N(i.issued_date) : "Not specified"],
 							["Issued by", i.issued_by],
 							["Purpose", i.purpose],
-							["Mandate", i.mandate],
 							["Qualification requirements", i.qualification_requirements]
 						].map(([e, t]) => /* @__PURE__ */ (0, U.jsxs)("div", { children: [/* @__PURE__ */ (0, U.jsx)("dt", {
 							className: "tw:text-xs tw:text-muted-foreground",

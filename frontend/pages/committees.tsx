@@ -72,7 +72,6 @@ export default function Committees() {
           issued_date: "",
           issued_by: "",
           purpose: "",
-          mandate: "",
           qualification_requirements: "",
         }}
         fields={(_editing, row) => [
@@ -95,7 +94,6 @@ export default function Committees() {
             label: "Issued by",
             placeholder: "Name of issuing person or authority",
           },
-          { name: "mandate", label: "Mandate", type: "textarea" },
           {
             name: "qualification_requirements",
             label: "Qualification requirements",
@@ -243,7 +241,6 @@ export default function Committees() {
                   ],
                   ["Issued by", viewing.issued_by],
                   ["Purpose", viewing.purpose],
-                  ["Mandate", viewing.mandate],
                   ["Qualification requirements", viewing.qualification_requirements],
                 ].map(([label, value]) => (
                   <div key={label}>

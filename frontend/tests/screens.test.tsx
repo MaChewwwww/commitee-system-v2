@@ -288,6 +288,7 @@ describe("forms and authorization", () => {
     expect(within(dialog).getByText("Barangay Poblacion · Education")).toBeInTheDocument()
     expect(within(dialog).queryByText("Establishing reference")).not.toBeInTheDocument()
     expect(within(dialog).queryByText("Effective until")).not.toBeInTheDocument()
+    expect(within(dialog).queryByText("Mandate")).not.toBeInTheDocument()
     expect(within(dialog).queryByRole("button", { name: "Save changes" })).not.toBeInTheDocument()
     expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === "GET")).toBe(
       true,
@@ -304,6 +305,7 @@ describe("forms and authorization", () => {
     expect(screen.queryByRole("textbox", { name: /Committee name/ })).not.toBeInTheDocument()
     expect(screen.queryByLabelText(/Establishing reference/)).not.toBeInTheDocument()
     expect(screen.queryByLabelText(/Effective until/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Mandate/)).not.toBeInTheDocument()
     expect(screen.getByText("Barangay Poblacion · Education")).toBeInTheDocument()
     expect(await screen.findByRole("combobox", { name: "Role for Alex Reyes" })).toHaveTextContent(
       "Chairperson",
@@ -316,6 +318,7 @@ describe("forms and authorization", () => {
     await screen.findByRole("button", { name: "Edit Committee" })
     await userEvent.click(screen.getByRole("button", { name: "Add committee" }))
     await choose("Committee name", "Youth Development")
+    expect(screen.queryByLabelText(/Mandate/)).not.toBeInTheDocument()
     expect(screen.queryByLabelText(/Establishing reference/)).not.toBeInTheDocument()
     expect(screen.queryByLabelText(/Effective until/)).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole("button", { name: "Save changes" }))
@@ -327,6 +330,7 @@ describe("forms and authorization", () => {
       expect(body).toMatchObject({ name: "Youth Development", type: "Standing" })
       expect(body).not.toHaveProperty("establishing_reference")
       expect(body).not.toHaveProperty("effective_until")
+      expect(body).not.toHaveProperty("mandate")
     })
   })
 

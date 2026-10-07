@@ -2028,16 +2028,16 @@ function li({ children: e }) {
 //#endregion
 //#region frontend/app.tsx
 var ui = /* @__PURE__ */ e({ App: () => mi }), di = {
-	login: () => import("./login-D-NGGoM6.js"),
-	dashboard: () => import("./dashboard-B05zSiyS.js"),
-	members: () => import("./members-DDcKlPEF.js"),
-	committees: () => import("./committees-8lqc5x5T.js"),
-	assignments: () => import("./assignments-BjJmIOII.js"),
-	jurisdiction: () => import("./jurisdiction-Dx543ca_.js"),
+	login: () => import("./login-DLZ-YhVN.js"),
+	dashboard: () => import("./dashboard-CXo6tWDu.js"),
+	members: () => import("./members-D6zwBz60.js"),
+	committees: () => import("./committees-Bo9N9nIM.js"),
+	assignments: () => import("./assignments-BM_YL-S2.js"),
+	jurisdiction: () => import("./jurisdiction-DXmX12uT.js"),
 	workload: () => import("./workload-CDX0wxWM.js"),
 	performance: () => import("./performance-DQqZSZ_o.js"),
-	reports: () => import("./reports-arQgh5OE.js"),
-	users: () => import("./users-CrwYMn1T.js"),
+	reports: () => import("./reports-CQ8Srmq4.js"),
+	users: () => import("./users-CpePmrOS.js"),
 	forbidden: () => import("./forbidden-B0KFy6wT.js")
 }, fi = new ke({ defaultOptions: {
 	queries: {

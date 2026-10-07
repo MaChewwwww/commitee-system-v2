@@ -58,7 +58,6 @@ export interface Committee extends Entity {
   effective_until?: string | null
   type?: string
   purpose?: string
-  mandate?: string
   qualification_requirements?: string
   status: string
 }

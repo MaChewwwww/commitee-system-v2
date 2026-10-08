@@ -10,10 +10,11 @@ RUN npm run build
 
 FROM php:8.2-apache
 
-# API text validation uses mb_strlen, including Filipino names and legal references.
+# API validation requires mbstring; Gemini requests require the PHP cURL extension.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libonig-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring \
+    && apt-get install -y --no-install-recommends libonig-dev libcurl4-openssl-dev ca-certificates \
+    && docker-php-ext-install pdo pdo_mysql mbstring curl \
+    && php -r 'foreach (["pdo_mysql", "mbstring", "curl"] as $extension) { if (!extension_loaded($extension)) { fwrite(STDERR, "Missing PHP extension: " . $extension . PHP_EOL); exit(1); } }' \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy application source

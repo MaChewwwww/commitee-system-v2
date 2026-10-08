@@ -326,11 +326,14 @@ function geminiErrorCategory(array $ai): string {
     if ($details === 'NOT CONFIGURED' || stripos((string) ($ai['error'] ?? ''), 'not configured') !== false) {
         return 'key_missing';
     }
-    if ($details === 'all_models_unavailable' || stripos((string) ($ai['error'] ?? ''), 'temporarily unavailable') !== false) {
+    if ($details === 'curl_unavailable') {
+        return 'curl_unavailable';
+    }
+    if ($details === 'all_models_unavailable') {
         return 'all_models_unavailable';
     }
-    if (!extension_loaded('curl') || $details === 'curl_unavailable') {
-        return 'curl_unavailable';
+    if (preg_match('/API key (?:not valid|is not valid|expired|has expired|is invalid)/i', $details)) {
+        return 'key_invalid';
     }
     $http = (int) ($ai['http'] ?? 0);
     if ($http === 0 && stripos($details, 'Network') !== false) {
@@ -384,6 +387,12 @@ function geminiClientErrorPayload(array $ai): array {
     if ($category === 'all_models_unavailable') {
         $error = 'AI service is temporarily unavailable. Please try again later.';
     }
+    if ($category === 'key_invalid') {
+        $error = 'The server Gemini API key is invalid or expired. Update the server AI key and redeploy.';
+    }
+    if ($category === 'curl_unavailable') {
+        $error = 'The server is missing PHP cURL. Rebuild the application with the required extension.';
+    }
     $payload = [
         'success' => false,
         'error' => $error,
@@ -397,6 +406,9 @@ function geminiClientErrorPayload(array $ai): array {
     }
     if ($category === 'key_missing') {
         $payload['stage'] = 'key_missing';
+    }
+    if ($category === 'key_invalid') {
+        $payload['stage'] = 'key_invalid';
     }
     if ($category === 'curl_unavailable' || $category === 'network_error') {
         $payload['stage'] = 'network';
